@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Gets or Sets EnumClass
  */
+@com.fasterxml.jackson.annotation.JsonFormat
 public enum EnumClass {
   
   _ABC("_abc"),
@@ -25,8 +26,12 @@ public enum EnumClass {
     this.value = value;
   }
 
-  @Override
   @JsonValue
+  public String getValue() {
+    return value;
+  }
+
+  @Override
   public String toString() {
     return String.valueOf(value);
   }

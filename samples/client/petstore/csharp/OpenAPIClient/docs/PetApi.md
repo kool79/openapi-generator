@@ -18,13 +18,14 @@ Method | HTTP request | Description
 
 ## AddPet
 
-> void AddPet (Pet body)
+> void AddPet (Pet pet)
 
 Add a new pet to the store
 
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -41,12 +42,12 @@ namespace Example
             Configuration.Default.AccessToken = "YOUR_ACCESS_TOKEN";
 
             var apiInstance = new PetApi(Configuration.Default);
-            var body = new Pet(); // Pet | Pet object that needs to be added to the store
+            var pet = new Pet(); // Pet | Pet object that needs to be added to the store
 
             try
             {
                 // Add a new pet to the store
-                apiInstance.AddPet(body);
+                apiInstance.AddPet(pet);
             }
             catch (ApiException e)
             {
@@ -64,7 +65,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**Pet**](Pet.md)| Pet object that needs to be added to the store | 
+ **pet** | [**Pet**](Pet.md)| Pet object that needs to be added to the store | 
 
 ### Return type
 
@@ -79,6 +80,13 @@ void (empty response body)
 - **Content-Type**: application/json, application/xml
 - **Accept**: Not defined
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful operation |  -  |
+| **405** | Invalid input |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -87,13 +95,14 @@ void (empty response body)
 
 ## DeletePet
 
-> void DeletePet (long? petId, string apiKey = null)
+> void DeletePet (long petId, string apiKey = null)
 
 Deletes a pet
 
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -110,7 +119,7 @@ namespace Example
             Configuration.Default.AccessToken = "YOUR_ACCESS_TOKEN";
 
             var apiInstance = new PetApi(Configuration.Default);
-            var petId = 789;  // long? | Pet id to delete
+            var petId = 789;  // long | Pet id to delete
             var apiKey = apiKey_example;  // string |  (optional) 
 
             try
@@ -134,7 +143,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **petId** | **long?**| Pet id to delete | 
+ **petId** | **long**| Pet id to delete | 
  **apiKey** | **string**|  | [optional] 
 
 ### Return type
@@ -150,6 +159,13 @@ void (empty response body)
 - **Content-Type**: Not defined
 - **Accept**: Not defined
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful operation |  -  |
+| **400** | Invalid pet value |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -158,7 +174,7 @@ void (empty response body)
 
 ## FindPetsByStatus
 
-> List<Pet> FindPetsByStatus (List<string> status)
+> List&lt;Pet&gt; FindPetsByStatus (List<string> status)
 
 Finds Pets by status
 
@@ -167,6 +183,7 @@ Multiple status values can be provided with comma separated strings
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -188,7 +205,7 @@ namespace Example
             try
             {
                 // Finds Pets by status
-                List&lt;Pet&gt; result = apiInstance.FindPetsByStatus(status);
+                List<Pet> result = apiInstance.FindPetsByStatus(status);
                 Debug.WriteLine(result);
             }
             catch (ApiException e)
@@ -211,7 +228,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**List<Pet>**](Pet.md)
+[**List&lt;Pet&gt;**](Pet.md)
 
 ### Authorization
 
@@ -222,6 +239,13 @@ Name | Type | Description  | Notes
 - **Content-Type**: Not defined
 - **Accept**: application/xml, application/json
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful operation |  -  |
+| **400** | Invalid status value |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -230,7 +254,7 @@ Name | Type | Description  | Notes
 
 ## FindPetsByTags
 
-> List<Pet> FindPetsByTags (List<string> tags)
+> List&lt;Pet&gt; FindPetsByTags (List<string> tags)
 
 Finds Pets by tags
 
@@ -239,6 +263,7 @@ Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -260,7 +285,7 @@ namespace Example
             try
             {
                 // Finds Pets by tags
-                List&lt;Pet&gt; result = apiInstance.FindPetsByTags(tags);
+                List<Pet> result = apiInstance.FindPetsByTags(tags);
                 Debug.WriteLine(result);
             }
             catch (ApiException e)
@@ -283,7 +308,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**List<Pet>**](Pet.md)
+[**List&lt;Pet&gt;**](Pet.md)
 
 ### Authorization
 
@@ -294,6 +319,13 @@ Name | Type | Description  | Notes
 - **Content-Type**: Not defined
 - **Accept**: application/xml, application/json
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful operation |  -  |
+| **400** | Invalid tag value |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -302,7 +334,7 @@ Name | Type | Description  | Notes
 
 ## GetPetById
 
-> Pet GetPetById (long? petId)
+> Pet GetPetById (long petId)
 
 Find pet by ID
 
@@ -311,6 +343,7 @@ Returns a single pet
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -329,7 +362,7 @@ namespace Example
             // Configuration.Default.AddApiKeyPrefix("api_key", "Bearer");
 
             var apiInstance = new PetApi(Configuration.Default);
-            var petId = 789;  // long? | ID of pet to return
+            var petId = 789;  // long | ID of pet to return
 
             try
             {
@@ -353,7 +386,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **petId** | **long?**| ID of pet to return | 
+ **petId** | **long**| ID of pet to return | 
 
 ### Return type
 
@@ -368,6 +401,14 @@ Name | Type | Description  | Notes
 - **Content-Type**: Not defined
 - **Accept**: application/xml, application/json
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful operation |  -  |
+| **400** | Invalid ID supplied |  -  |
+| **404** | Pet not found |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -376,13 +417,14 @@ Name | Type | Description  | Notes
 
 ## UpdatePet
 
-> void UpdatePet (Pet body)
+> void UpdatePet (Pet pet)
 
 Update an existing pet
 
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -399,12 +441,12 @@ namespace Example
             Configuration.Default.AccessToken = "YOUR_ACCESS_TOKEN";
 
             var apiInstance = new PetApi(Configuration.Default);
-            var body = new Pet(); // Pet | Pet object that needs to be added to the store
+            var pet = new Pet(); // Pet | Pet object that needs to be added to the store
 
             try
             {
                 // Update an existing pet
-                apiInstance.UpdatePet(body);
+                apiInstance.UpdatePet(pet);
             }
             catch (ApiException e)
             {
@@ -422,7 +464,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**Pet**](Pet.md)| Pet object that needs to be added to the store | 
+ **pet** | [**Pet**](Pet.md)| Pet object that needs to be added to the store | 
 
 ### Return type
 
@@ -437,6 +479,15 @@ void (empty response body)
 - **Content-Type**: application/json, application/xml
 - **Accept**: Not defined
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful operation |  -  |
+| **400** | Invalid ID supplied |  -  |
+| **404** | Pet not found |  -  |
+| **405** | Validation exception |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -445,13 +496,14 @@ void (empty response body)
 
 ## UpdatePetWithForm
 
-> void UpdatePetWithForm (long? petId, string name = null, string status = null)
+> void UpdatePetWithForm (long petId, string name = null, string status = null)
 
 Updates a pet in the store with form data
 
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -468,7 +520,7 @@ namespace Example
             Configuration.Default.AccessToken = "YOUR_ACCESS_TOKEN";
 
             var apiInstance = new PetApi(Configuration.Default);
-            var petId = 789;  // long? | ID of pet that needs to be updated
+            var petId = 789;  // long | ID of pet that needs to be updated
             var name = name_example;  // string | Updated name of the pet (optional) 
             var status = status_example;  // string | Updated status of the pet (optional) 
 
@@ -493,7 +545,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **petId** | **long?**| ID of pet that needs to be updated | 
+ **petId** | **long**| ID of pet that needs to be updated | 
  **name** | **string**| Updated name of the pet | [optional] 
  **status** | **string**| Updated status of the pet | [optional] 
 
@@ -510,6 +562,13 @@ void (empty response body)
 - **Content-Type**: application/x-www-form-urlencoded
 - **Accept**: Not defined
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful operation |  -  |
+| **405** | Invalid input |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -518,13 +577,14 @@ void (empty response body)
 
 ## UploadFile
 
-> ApiResponse UploadFile (long? petId, string additionalMetadata = null, System.IO.Stream file = null)
+> ApiResponse UploadFile (long petId, string additionalMetadata = null, System.IO.Stream file = null)
 
 uploads an image
 
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -541,7 +601,7 @@ namespace Example
             Configuration.Default.AccessToken = "YOUR_ACCESS_TOKEN";
 
             var apiInstance = new PetApi(Configuration.Default);
-            var petId = 789;  // long? | ID of pet to update
+            var petId = 789;  // long | ID of pet to update
             var additionalMetadata = additionalMetadata_example;  // string | Additional data to pass to server (optional) 
             var file = BINARY_DATA_HERE;  // System.IO.Stream | file to upload (optional) 
 
@@ -567,7 +627,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **petId** | **long?**| ID of pet to update | 
+ **petId** | **long**| ID of pet to update | 
  **additionalMetadata** | **string**| Additional data to pass to server | [optional] 
  **file** | **System.IO.Stream**| file to upload | [optional] 
 
@@ -584,6 +644,12 @@ Name | Type | Description  | Notes
 - **Content-Type**: multipart/form-data
 - **Accept**: application/json
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful operation |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -592,13 +658,14 @@ Name | Type | Description  | Notes
 
 ## UploadFileWithRequiredFile
 
-> ApiResponse UploadFileWithRequiredFile (long? petId, System.IO.Stream requiredFile, string additionalMetadata = null)
+> ApiResponse UploadFileWithRequiredFile (long petId, System.IO.Stream requiredFile, string additionalMetadata = null)
 
 uploads an image (required)
 
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -615,7 +682,7 @@ namespace Example
             Configuration.Default.AccessToken = "YOUR_ACCESS_TOKEN";
 
             var apiInstance = new PetApi(Configuration.Default);
-            var petId = 789;  // long? | ID of pet to update
+            var petId = 789;  // long | ID of pet to update
             var requiredFile = BINARY_DATA_HERE;  // System.IO.Stream | file to upload
             var additionalMetadata = additionalMetadata_example;  // string | Additional data to pass to server (optional) 
 
@@ -641,7 +708,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **petId** | **long?**| ID of pet to update | 
+ **petId** | **long**| ID of pet to update | 
  **requiredFile** | **System.IO.Stream**| file to upload | 
  **additionalMetadata** | **string**| Additional data to pass to server | [optional] 
 
@@ -657,6 +724,12 @@ Name | Type | Description  | Notes
 
 - **Content-Type**: multipart/form-data
 - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful operation |  -  |
 
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)

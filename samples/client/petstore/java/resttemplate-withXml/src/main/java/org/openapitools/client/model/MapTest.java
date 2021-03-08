@@ -15,38 +15,52 @@ package org.openapitools.client.model;
 
 import java.util.Objects;
 import java.util.Arrays;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.dataformat.xml.annotation.*;
 import javax.xml.bind.annotation.*;
 
 /**
  * MapTest
  */
-
+@JsonPropertyOrder({
+  MapTest.JSON_PROPERTY_MAP_MAP_OF_STRING,
+  MapTest.JSON_PROPERTY_MAP_OF_ENUM_STRING,
+  MapTest.JSON_PROPERTY_DIRECT_MAP,
+  MapTest.JSON_PROPERTY_INDIRECT_MAP
+})
+@JsonTypeName("MapTest")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
 @XmlRootElement(name = "MapTest")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JacksonXmlRootElement(localName = "MapTest")
 public class MapTest {
-  @JsonProperty("map_map_of_string")
+  public static final String JSON_PROPERTY_MAP_MAP_OF_STRING = "map_map_of_string";
   // Is a container wrapped=false
   // items.name=inner items.baseName=inner items.xmlName= items.xmlNamespace=
   // items.example= items.type=Map&lt;String, String&gt;
   @XmlElement(name = "inner")
-  private Map<String, Map<String, String>> mapMapOfString = new HashMap<String, Map<String, String>>();
+  private Map<String, Map<String, String>> mapMapOfString = null;
 
   /**
    * Gets or Sets inner
    */
+  @XmlType(name="InnerEnum")
+  @XmlEnum(String.class)
   public enum InnerEnum {
+    @XmlEnumValue("UPPER")
     UPPER("UPPER"),
     
+    @XmlEnumValue("lower")
     LOWER("lower");
 
     private String value;
@@ -76,28 +90,30 @@ public class MapTest {
     }
   }
 
-  @JsonProperty("map_of_enum_string")
+  public static final String JSON_PROPERTY_MAP_OF_ENUM_STRING = "map_of_enum_string";
   // Is a container wrapped=false
   // items.name=inner items.baseName=inner items.xmlName= items.xmlNamespace=
   // items.example= items.type=String
   @XmlElement(name = "inner")
-  private Map<String, InnerEnum> mapOfEnumString = new HashMap<String, InnerEnum>();
+  private Map<String, InnerEnum> mapOfEnumString = null;
 
-  @JsonProperty("direct_map")
+  public static final String JSON_PROPERTY_DIRECT_MAP = "direct_map";
   // Is a container wrapped=false
   // items.name=inner items.baseName=inner items.xmlName= items.xmlNamespace=
   // items.example= items.type=Boolean
   @XmlElement(name = "inner")
-  private Map<String, Boolean> directMap = new HashMap<String, Boolean>();
+  private Map<String, Boolean> directMap = null;
 
-  @JsonProperty("indirect_map")
+  public static final String JSON_PROPERTY_INDIRECT_MAP = "indirect_map";
   // Is a container wrapped=false
   // items.name=inner items.baseName=inner items.xmlName= items.xmlNamespace=
   // items.example= items.type=Boolean
   @XmlElement(name = "inner")
-  private Map<String, Boolean> indirectMap = new HashMap<String, Boolean>();
+  private Map<String, Boolean> indirectMap = null;
+
 
   public MapTest mapMapOfString(Map<String, Map<String, String>> mapMapOfString) {
+    
     this.mapMapOfString = mapMapOfString;
     return this;
   }
@@ -114,16 +130,23 @@ public class MapTest {
    * Get mapMapOfString
    * @return mapMapOfString
   **/
+  @javax.annotation.Nullable
   @ApiModelProperty(value = "")
+  @JsonProperty(JSON_PROPERTY_MAP_MAP_OF_STRING)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
   public Map<String, Map<String, String>> getMapMapOfString() {
     return mapMapOfString;
   }
+
 
   public void setMapMapOfString(Map<String, Map<String, String>> mapMapOfString) {
     this.mapMapOfString = mapMapOfString;
   }
 
+
   public MapTest mapOfEnumString(Map<String, InnerEnum> mapOfEnumString) {
+    
     this.mapOfEnumString = mapOfEnumString;
     return this;
   }
@@ -140,16 +163,23 @@ public class MapTest {
    * Get mapOfEnumString
    * @return mapOfEnumString
   **/
+  @javax.annotation.Nullable
   @ApiModelProperty(value = "")
+  @JsonProperty(JSON_PROPERTY_MAP_OF_ENUM_STRING)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
   public Map<String, InnerEnum> getMapOfEnumString() {
     return mapOfEnumString;
   }
+
 
   public void setMapOfEnumString(Map<String, InnerEnum> mapOfEnumString) {
     this.mapOfEnumString = mapOfEnumString;
   }
 
+
   public MapTest directMap(Map<String, Boolean> directMap) {
+    
     this.directMap = directMap;
     return this;
   }
@@ -166,16 +196,23 @@ public class MapTest {
    * Get directMap
    * @return directMap
   **/
+  @javax.annotation.Nullable
   @ApiModelProperty(value = "")
+  @JsonProperty(JSON_PROPERTY_DIRECT_MAP)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
   public Map<String, Boolean> getDirectMap() {
     return directMap;
   }
+
 
   public void setDirectMap(Map<String, Boolean> directMap) {
     this.directMap = directMap;
   }
 
+
   public MapTest indirectMap(Map<String, Boolean> indirectMap) {
+    
     this.indirectMap = indirectMap;
     return this;
   }
@@ -192,10 +229,15 @@ public class MapTest {
    * Get indirectMap
    * @return indirectMap
   **/
+  @javax.annotation.Nullable
   @ApiModelProperty(value = "")
+  @JsonProperty(JSON_PROPERTY_INDIRECT_MAP)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
   public Map<String, Boolean> getIndirectMap() {
     return indirectMap;
   }
+
 
   public void setIndirectMap(Map<String, Boolean> indirectMap) {
     this.indirectMap = indirectMap;
@@ -203,7 +245,7 @@ public class MapTest {
 
 
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -222,7 +264,6 @@ public class MapTest {
     return Objects.hash(mapMapOfString, mapOfEnumString, directMap, indirectMap);
   }
 
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -239,7 +280,7 @@ public class MapTest {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

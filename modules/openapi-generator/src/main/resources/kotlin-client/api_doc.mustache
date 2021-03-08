@@ -12,7 +12,7 @@ Method | HTTP request | Description
 {{#operation}}
 <a name="{{operationId}}"></a>
 # **{{operationId}}**
-> {{#returnType}}{{returnType}} {{/returnType}}{{operationId}}({{#allParams}}{{{paramName}}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+> {{#returnType}}{{returnType}} {{/returnType}}{{operationId}}({{#allParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}})
 
 {{summary}}{{#notes}}
 
@@ -30,7 +30,7 @@ val apiInstance = {{{classname}}}()
 val {{{paramName}}} : {{{dataType}}} = {{{example}}} // {{{dataType}}} | {{{description}}}
 {{/allParams}}
 try {
-    {{#returnType}}val result : {{{returnType}}} = {{/returnType}}apiInstance.{{{operationId}}}({{#allParams}}{{{paramName}}}{{#hasMore}}, {{/hasMore}}{{/allParams}}){{#returnType}}
+    {{#returnType}}val result : {{{returnType}}}{{#nullableReturnType}}?{{/nullableReturnType}} = {{/returnType}}apiInstance.{{{operationId}}}({{#allParams}}{{{paramName}}}{{^-last}}, {{/-last}}{{/allParams}}){{#returnType}}
     println(result){{/returnType}}
 } catch (e: ClientException) {
     println("4xx response calling {{{classname}}}#{{{operationId}}}")
@@ -54,12 +54,34 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-{{^authMethods}}No authorization required{{/authMethods}}{{#authMethods}}[{{name}}](../README.md#{{name}}){{^-last}}, {{/-last}}{{/authMethods}}
+{{^authMethods}}No authorization required{{/authMethods}}
+{{#authMethods}}
+{{#isApiKey}}
+Configure {{name}}:
+    ApiClient.apiKey["{{keyParamName}}"] = ""
+    ApiClient.apiKeyPrefix["{{keyParamName}}"] = ""
+{{/isApiKey}}
+{{#isBasic}}
+{{#isBasicBasic}}
+Configure {{name}}:
+    ApiClient.username = ""
+    ApiClient.password = ""
+{{/isBasicBasic}}
+{{#isBasicBearer}}
+Configure {{name}}:
+    ApiClient.accessToken = ""
+{{/isBasicBearer}}
+{{/isBasic}}
+{{#isOAuth}}
+Configure {{name}}:
+    ApiClient.accessToken = ""
+{{/isOAuth}}
+{{/authMethods}}
 
 ### HTTP request headers
 
- - **Content-Type**: {{#consumes}}{{{mediaType}}}{{#hasMore}}, {{/hasMore}}{{/consumes}}{{^consumes}}Not defined{{/consumes}}
- - **Accept**: {{#produces}}{{{mediaType}}}{{#hasMore}}, {{/hasMore}}{{/produces}}{{^produces}}Not defined{{/produces}}
+ - **Content-Type**: {{#consumes}}{{{mediaType}}}{{^-last}}, {{/-last}}{{/consumes}}{{^consumes}}Not defined{{/consumes}}
+ - **Accept**: {{#produces}}{{{mediaType}}}{{^-last}}, {{/-last}}{{/produces}}{{^produces}}Not defined{{/produces}}
 
 {{/operation}}
 {{/operations}}

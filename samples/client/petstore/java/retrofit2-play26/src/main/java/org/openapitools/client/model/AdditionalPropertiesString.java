@@ -15,25 +15,34 @@ package org.openapitools.client.model;
 
 import java.util.Objects;
 import java.util.Arrays;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.HashMap;
 import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 
 /**
  * AdditionalPropertiesString
  */
-
+@JsonPropertyOrder({
+  AdditionalPropertiesString.JSON_PROPERTY_NAME
+})
+@JsonTypeName("AdditionalPropertiesString")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
 public class AdditionalPropertiesString extends HashMap<String, String> {
-  @JsonProperty("name")
+  public static final String JSON_PROPERTY_NAME = "name";
   private String name;
 
+
   public AdditionalPropertiesString name(String name) {
+    
     this.name = name;
     return this;
   }
@@ -42,10 +51,15 @@ public class AdditionalPropertiesString extends HashMap<String, String> {
    * Get name
    * @return name
   **/
+  @javax.annotation.Nullable
   @ApiModelProperty(value = "")
+  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
   public String getName() {
     return name;
   }
+
 
   public void setName(String name) {
     this.name = name;
@@ -53,7 +67,7 @@ public class AdditionalPropertiesString extends HashMap<String, String> {
 
 
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -70,7 +84,6 @@ public class AdditionalPropertiesString extends HashMap<String, String> {
     return Objects.hash(name, super.hashCode());
   }
 
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -85,7 +98,7 @@ public class AdditionalPropertiesString extends HashMap<String, String> {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

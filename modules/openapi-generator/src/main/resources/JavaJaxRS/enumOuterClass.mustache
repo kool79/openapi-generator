@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * {{^description}}Gets or Sets {{{name}}}{{/description}}{{#description}}{{description}}{{/description}}
  */
-public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} {
+{{>additionalEnumTypeAnnotations}}public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} {
   {{#gson}}
   {{#allowableValues}}{{#enumVars}}
     {{#enumDescription}}
@@ -47,6 +47,6 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
         return b;
       }
     }
-    {{#useNullForUnknownEnumValue}}return null;{{/useNullForUnknownEnumValue}}{{^useNullForUnknownEnumValue}}throw new IllegalArgumentException("Unexpected value '" + value + "'");{{/useNullForUnknownEnumValue}}
+    {{#isNullable}}return null;{{/isNullable}}{{^isNullable}}throw new IllegalArgumentException("Unexpected value '" + value + "'");{{/isNullable}}
   }
 }

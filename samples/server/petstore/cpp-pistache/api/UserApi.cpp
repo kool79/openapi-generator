@@ -23,7 +23,7 @@ using namespace org::openapitools::server::model;
 
 UserApi::UserApi(std::shared_ptr<Pistache::Rest::Router> rtr) { 
     router = rtr;
-};
+}
 
 void UserApi::init() {
     setupRoutes();
@@ -58,7 +58,10 @@ void UserApi::create_user_handler(const Pistache::Rest::Request &request, Pistac
         //send a 400 error
         response.send(Pistache::Http::Code::Bad_Request, e.what());
         return;
-    } catch (std::runtime_error &e) {
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
         //send a 500 error
         response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
         return;
@@ -77,7 +80,10 @@ void UserApi::create_users_with_array_input_handler(const Pistache::Rest::Reques
         //send a 400 error
         response.send(Pistache::Http::Code::Bad_Request, e.what());
         return;
-    } catch (std::runtime_error &e) {
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
         //send a 500 error
         response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
         return;
@@ -96,7 +102,10 @@ void UserApi::create_users_with_list_input_handler(const Pistache::Rest::Request
         //send a 400 error
         response.send(Pistache::Http::Code::Bad_Request, e.what());
         return;
-    } catch (std::runtime_error &e) {
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
         //send a 500 error
         response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
         return;
@@ -113,7 +122,10 @@ void UserApi::delete_user_handler(const Pistache::Rest::Request &request, Pistac
         //send a 400 error
         response.send(Pistache::Http::Code::Bad_Request, e.what());
         return;
-    } catch (std::runtime_error &e) {
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
         //send a 500 error
         response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
         return;
@@ -130,7 +142,10 @@ void UserApi::get_user_by_name_handler(const Pistache::Rest::Request &request, P
         //send a 400 error
         response.send(Pistache::Http::Code::Bad_Request, e.what());
         return;
-    } catch (std::runtime_error &e) {
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
         //send a 500 error
         response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
         return;
@@ -143,17 +158,17 @@ void UserApi::login_user_handler(const Pistache::Rest::Request &request, Pistach
     auto usernameQuery = request.query().get("username");
     Pistache::Optional<std::string> username;
     if(!usernameQuery.isEmpty()){
-        std::string value;
-        if(fromStringValue(usernameQuery.get(), value)){
-            username = Pistache::Some(value);
+        std::string valueQuery_instance;
+        if(fromStringValue(usernameQuery.get(), valueQuery_instance)){
+            username = Pistache::Some(valueQuery_instance);
         }
     }
     auto passwordQuery = request.query().get("password");
     Pistache::Optional<std::string> password;
     if(!passwordQuery.isEmpty()){
-        std::string value;
-        if(fromStringValue(passwordQuery.get(), value)){
-            password = Pistache::Some(value);
+        std::string valueQuery_instance;
+        if(fromStringValue(passwordQuery.get(), valueQuery_instance)){
+            password = Pistache::Some(valueQuery_instance);
         }
     }
     
@@ -163,14 +178,17 @@ void UserApi::login_user_handler(const Pistache::Rest::Request &request, Pistach
         //send a 400 error
         response.send(Pistache::Http::Code::Bad_Request, e.what());
         return;
-    } catch (std::runtime_error &e) {
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
         //send a 500 error
         response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
         return;
     }
 
 }
-void UserApi::logout_user_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
+void UserApi::logout_user_handler(const Pistache::Rest::Request &, Pistache::Http::ResponseWriter response) {
 
     try {
       this->logout_user(response);
@@ -178,7 +196,10 @@ void UserApi::logout_user_handler(const Pistache::Rest::Request &request, Pistac
         //send a 400 error
         response.send(Pistache::Http::Code::Bad_Request, e.what());
         return;
-    } catch (std::runtime_error &e) {
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
         //send a 500 error
         response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
         return;
@@ -200,7 +221,10 @@ void UserApi::update_user_handler(const Pistache::Rest::Request &request, Pistac
         //send a 400 error
         response.send(Pistache::Http::Code::Bad_Request, e.what());
         return;
-    } catch (std::runtime_error &e) {
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
         //send a 500 error
         response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
         return;
@@ -208,7 +232,7 @@ void UserApi::update_user_handler(const Pistache::Rest::Request &request, Pistac
 
 }
 
-void UserApi::user_api_default_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
+void UserApi::user_api_default_handler(const Pistache::Rest::Request &, Pistache::Http::ResponseWriter response) {
     response.send(Pistache::Http::Code::Not_Found, "The requested method does not exist");
 }
 

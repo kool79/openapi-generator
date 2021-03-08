@@ -15,6 +15,7 @@ package org.openapitools.client.model;
 
 import java.util.Objects;
 import java.util.Arrays;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.dataformat.xml.annotation.*;
 import javax.xml.bind.annotation.*;
 
@@ -26,10 +27,13 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum EnumClass {
   
+  @XmlEnumValue("_abc")
   _ABC("_abc"),
   
+  @XmlEnumValue("-efg")
   _EFG("-efg"),
   
+  @XmlEnumValue("(xyz)")
   _XYZ_("(xyz)");
 
   private String value;

@@ -12,6 +12,7 @@
 package org.openapitools.server.models
 
 
+import java.io.Serializable
 /**
  * An order for a pets from the pet store
  * @param id 
@@ -25,25 +26,23 @@ data class Order (
     val id: kotlin.Long? = null,
     val petId: kotlin.Long? = null,
     val quantity: kotlin.Int? = null,
-    val shipDate: java.time.LocalDateTime? = null,
+    val shipDate: java.time.OffsetDateTime? = null,
     /* Order Status */
     val status: Order.Status? = null,
     val complete: kotlin.Boolean? = null
-) {
-
+) : Serializable 
+{
+    companion object {
+        private const val serialVersionUID: Long = 123
+    }
     /**
     * Order Status
     * Values: placed,approved,delivered
     */
     enum class Status(val value: kotlin.String){
-    
         placed("placed"),
-    
         approved("approved"),
-    
         delivered("delivered");
-    
     }
-
 }
 

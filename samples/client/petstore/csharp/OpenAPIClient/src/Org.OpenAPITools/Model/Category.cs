@@ -1,4 +1,4 @@
-/* 
+/*
  * OpenAPI Petstore
  *
  * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
@@ -40,7 +40,7 @@ namespace Org.OpenAPITools.Model
         /// </summary>
         /// <param name="id">id.</param>
         /// <param name="name">name (required) (default to &quot;default-name&quot;).</param>
-        public Category(long? id = default(long?), string name = "default-name")
+        public Category(long id = default(long), string name = "default-name")
         {
             // to ensure "name" is required (not null)
             if (name == null)
@@ -51,20 +51,20 @@ namespace Org.OpenAPITools.Model
             {
                 this.Name = name;
             }
-            
+
             this.Id = id;
         }
-        
+
         /// <summary>
         /// Gets or Sets Id
         /// </summary>
         [DataMember(Name="id", EmitDefaultValue=false)]
-        public long? Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// Gets or Sets Name
         /// </summary>
-        [DataMember(Name="name", EmitDefaultValue=false)]
+        [DataMember(Name="name", EmitDefaultValue=true)]
         public string Name { get; set; }
 
         /// <summary>
@@ -80,14 +80,14 @@ namespace Org.OpenAPITools.Model
             sb.Append("}\n");
             return sb.ToString();
         }
-  
+
         /// <summary>
         /// Returns the JSON string presentation of the object
         /// </summary>
         /// <returns>JSON string presentation of the object</returns>
         public virtual string ToJson()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
         }
 
         /// <summary>

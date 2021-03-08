@@ -15,22 +15,31 @@ package org.openapitools.client.model;
 
 import java.util.Objects;
 import java.util.Arrays;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * Model for testing reserved words
  */
 @ApiModel(description = "Model for testing reserved words")
-
+@JsonPropertyOrder({
+  ModelReturn.JSON_PROPERTY_RETURN
+})
+@JsonTypeName("Return")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
 public class ModelReturn {
-  @JsonProperty("return")
+  public static final String JSON_PROPERTY_RETURN = "return";
   private Integer _return;
 
+
   public ModelReturn _return(Integer _return) {
+    
     this._return = _return;
     return this;
   }
@@ -39,10 +48,15 @@ public class ModelReturn {
    * Get _return
    * @return _return
   **/
+  @javax.annotation.Nullable
   @ApiModelProperty(value = "")
+  @JsonProperty(JSON_PROPERTY_RETURN)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
   public Integer getReturn() {
     return _return;
   }
+
 
   public void setReturn(Integer _return) {
     this._return = _return;
@@ -50,7 +64,7 @@ public class ModelReturn {
 
 
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -66,7 +80,6 @@ public class ModelReturn {
     return Objects.hash(_return);
   }
 
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -80,7 +93,7 @@ public class ModelReturn {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * Gets or Sets OuterEnum
  */
+@com.fasterxml.jackson.annotation.JsonFormat
 public enum OuterEnum {
   
   PLACED("placed"),
@@ -25,8 +26,12 @@ public enum OuterEnum {
     this.value = value;
   }
 
-  @Override
   @JsonValue
+  public String getValue() {
+    return value;
+  }
+
+  @Override
   public String toString() {
     return String.valueOf(value);
   }

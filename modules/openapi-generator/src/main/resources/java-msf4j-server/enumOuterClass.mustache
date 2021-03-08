@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 /**
  * {{^description}}Gets or Sets {{{name}}}{{/description}}{{#description}}{{{description}}}{{/description}}
  */
-public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} {
+{{>additionalEnumTypeAnnotations}}public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} {
   {{#gson}}
   {{#allowableValues}}{{#enumVars}}
   @SerializedName({{#isInteger}}"{{/isInteger}}{{#isDouble}}"{{/isDouble}}{{#isLong}}"{{/isLong}}{{#isFloat}}"{{/isFloat}}{{{value}}}{{#isInteger}}"{{/isInteger}}{{#isDouble}}"{{/isDouble}}{{#isLong}}"{{/isLong}}{{#isFloat}}"{{/isFloat}})
@@ -37,6 +37,6 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
         return b;
       }
     }
-    {{#useNullForUnknownEnumValue}}return null;{{/useNullForUnknownEnumValue}}{{^useNullForUnknownEnumValue}}throw new IllegalArgumentException("Unexpected value '" + text + "'");{{/useNullForUnknownEnumValue}}
+    {{#isNullable}}return null;{{/isNullable}}{{^isNullable}}throw new IllegalArgumentException("Unexpected value '" + text + "'");{{/isNullable}}
   }
 }

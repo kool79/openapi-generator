@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,9 @@ package org.openapitools.codegen.languages;
 import io.swagger.v3.oas.models.media.Schema;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.languages.features.BeanValidationFeatures;
+import org.openapitools.codegen.meta.features.DocumentationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
@@ -28,10 +31,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.openapitools.codegen.utils.OnceLogger.once;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class JavaPlayFrameworkCodegen extends AbstractJavaCodegen implements BeanValidationFeatures {
-
+    private final Logger LOGGER = LoggerFactory.getLogger(JavaPlayFrameworkCodegen.class);
     public static final String TITLE = "title";
     public static final String CONFIG_PACKAGE = "configPackage";
     public static final String BASE_PACKAGE = "basePackage";
@@ -40,6 +44,7 @@ public class JavaPlayFrameworkCodegen extends AbstractJavaCodegen implements Bea
     public static final String HANDLE_EXCEPTIONS = "handleExceptions";
     public static final String WRAP_CALLS = "wrapCalls";
     public static final String USE_SWAGGER_UI = "useSwaggerUI";
+    public static final String SUPPORT_ASYNC = "supportAsync";
 
     protected String title = "openapi-java-playframework";
     protected String configPackage = "org.openapitools.configuration";
@@ -50,9 +55,13 @@ public class JavaPlayFrameworkCodegen extends AbstractJavaCodegen implements Bea
     protected boolean handleExceptions = true;
     protected boolean wrapCalls = true;
     protected boolean useSwaggerUI = true;
+    protected boolean supportAsync = false;
 
     public JavaPlayFrameworkCodegen() {
         super();
+
+        modifyFeatureSet(features -> features.includeDocumentationFeatures(DocumentationFeature.Readme));
+
         outputFolder = "generated-code/javaPlayFramework";
         apiTestTemplateFiles.clear();
         embeddedTemplateDir = templateDir = "JavaPlayFramework";
@@ -87,6 +96,7 @@ public class JavaPlayFrameworkCodegen extends AbstractJavaCodegen implements Bea
         cliOptions.add(createBooleanCliWithDefault(HANDLE_EXCEPTIONS, "Add a 'throw exception' to each controller function. Add also a custom error handler where you can put your custom logic", handleExceptions));
         cliOptions.add(createBooleanCliWithDefault(WRAP_CALLS, "Add a wrapper to each controller function to handle things like metrics, response modification, etc..", wrapCalls));
         cliOptions.add(createBooleanCliWithDefault(USE_SWAGGER_UI, "Add a route to /api which show your documentation in swagger-ui. Will also import needed dependencies", useSwaggerUI));
+        cliOptions.add(createBooleanCliWithDefault(SUPPORT_ASYNC, "Support Async operations", supportAsync));
     }
 
     @Override
@@ -159,6 +169,11 @@ public class JavaPlayFrameworkCodegen extends AbstractJavaCodegen implements Bea
             this.setUseSwaggerUI(convertPropertyToBoolean(USE_SWAGGER_UI));
         }
         writePropertyBack(USE_SWAGGER_UI, useSwaggerUI);
+
+        if (additionalProperties.containsKey(SUPPORT_ASYNC)) {
+            this.setSupportAsync(convertPropertyToBoolean(SUPPORT_ASYNC));
+        }
+        writePropertyBack(SUPPORT_ASYNC, supportAsync);
 
         //We don't use annotation anymore
         importMapping.remove("ApiModelProperty");
@@ -280,22 +295,27 @@ public class JavaPlayFrameworkCodegen extends AbstractJavaCodegen implements Bea
         this.useSwaggerUI = useSwaggerUI;
     }
 
+    public void setSupportAsync(boolean supportAsync) {
+        this.supportAsync = supportAsync;
+    }
+
     @Override
     public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
+
         if (operations != null) {
             List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
             for (CodegenOperation operation : ops) {
 
                 for (CodegenParameter param : operation.allParams) {
                     if (param.isFormParam && param.isFile) {
-                        param.dataType = "Http.MultipartFormData.FilePart";
+                        param.dataType = "Http.MultipartFormData.FilePart<TemporaryFile>";
                     }
                 }
 
                 for (CodegenParameter param : operation.formParams) {
                     if (param.isFile) {
-                        param.dataType = "Http.MultipartFormData.FilePart";
+                        param.dataType = "Http.MultipartFormData.FilePart<TemporaryFile>";
                     }
                 }
 
@@ -309,10 +329,10 @@ public class JavaPlayFrameworkCodegen extends AbstractJavaCodegen implements Bea
 
                 if (operation.returnType != null) {
                     if (operation.returnType.equals("Boolean")) {
-                        operation.vendorExtensions.put("missingReturnInfoIfNeeded", "true");
+                        operation.vendorExtensions.put("x-missing-return-info-if-needed", "true");
                     }
                     if (operation.returnType.equals("BigDecimal")) {
-                        operation.vendorExtensions.put("missingReturnInfoIfNeeded", "1.0");
+                        operation.vendorExtensions.put("x-missing-return-info-if-needed", "1.0");
                     }
                     if (operation.returnType.startsWith("List")) {
                         String rt = operation.returnType;

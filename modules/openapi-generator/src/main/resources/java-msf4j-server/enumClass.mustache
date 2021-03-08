@@ -1,7 +1,7 @@
   /**
    * {{^description}}Gets or Sets {{{name}}}{{/description}}{{#description}}{{{description}}}{{/description}}
    */
-  public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} {
+  {{>additionalEnumTypeAnnotations}}public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} {
     {{#gson}}
         {{#allowableValues}}
             {{#enumVars}}
@@ -39,6 +39,6 @@
           return b;
         }
       }
-      {{#useNullForUnknownEnumValue}}return null;{{/useNullForUnknownEnumValue}}{{^useNullForUnknownEnumValue}}throw new IllegalArgumentException("Unexpected value '" + text + "'");{{/useNullForUnknownEnumValue}}
+      {{#isNullable}}return null;{{/isNullable}}{{^isNullable}}throw new IllegalArgumentException("Unexpected value '" + text + "'");{{/isNullable}}
     }
   }

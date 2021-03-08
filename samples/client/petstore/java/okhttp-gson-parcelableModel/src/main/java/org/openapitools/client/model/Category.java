@@ -29,7 +29,7 @@ import android.os.Parcel;
 /**
  * Category
  */
-
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
 public class Category implements Parcelable {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)
@@ -41,7 +41,9 @@ public class Category implements Parcelable {
 
   public Category() {
   }
+
   public Category id(Long id) {
+    
     this.id = id;
     return this;
   }
@@ -50,16 +52,21 @@ public class Category implements Parcelable {
    * Get id
    * @return id
   **/
+  @javax.annotation.Nullable
   @ApiModelProperty(value = "")
+
   public Long getId() {
     return id;
   }
+
 
   public void setId(Long id) {
     this.id = id;
   }
 
+
   public Category name(String name) {
+    
     this.name = name;
     return this;
   }
@@ -69,9 +76,11 @@ public class Category implements Parcelable {
    * @return name
   **/
   @ApiModelProperty(required = true, value = "")
+
   public String getName() {
     return name;
   }
+
 
   public void setName(String name) {
     this.name = name;
@@ -79,7 +88,7 @@ public class Category implements Parcelable {
 
 
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -96,7 +105,6 @@ public class Category implements Parcelable {
     return Objects.hash(id, name);
   }
 
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -111,7 +119,7 @@ public class Category implements Parcelable {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

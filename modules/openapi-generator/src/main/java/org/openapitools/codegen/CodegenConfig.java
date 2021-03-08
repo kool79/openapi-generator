@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import org.openapitools.codegen.api.TemplatingEngineAdapter;
+import org.openapitools.codegen.meta.FeatureSet;
 import org.openapitools.codegen.meta.GeneratorMetadata;
 
 import java.io.File;
@@ -42,6 +43,8 @@ public interface CodegenConfig {
     String getHelp();
 
     Map<String, Object> additionalProperties();
+
+    Map<String, String> serverVariableOverrides();
 
     Map<String, Object> vendorExtensions();
 
@@ -171,11 +174,15 @@ public interface CodegenConfig {
 
     String toModelImport(String name);
 
+    Map<String,String> toModelImportMap(String name);
+
     String toApiImport(String name);
 
     void addOperationToGroup(String tag, String resourcePath, Operation operation, CodegenOperation co, Map<String, List<CodegenOperation>> operations);
 
     Map<String, Object> updateAllModels(Map<String, Object> objs);
+
+    void postProcess();
 
     Map<String, Object> postProcessAllModels(Map<String, Object> objs);
 
@@ -188,6 +195,8 @@ public interface CodegenConfig {
     void postProcessModelProperty(CodegenModel model, CodegenProperty property);
 
     void postProcessParameter(CodegenParameter parameter);
+
+    String modelFilename(String templateName, String modelName);
 
     String apiFilename(String templateName, String tag);
 
@@ -205,6 +214,10 @@ public interface CodegenConfig {
 
     void setRemoveOperationIdPrefix(boolean removeOperationIdPrefix);
 
+    boolean isSkipOperationExample();
+
+    void setSkipOperationExample(boolean skipOperationExample);
+
     public boolean isHideGenerationTimestamp();
 
     public void setHideGenerationTimestamp(boolean hideGenerationTimestamp);
@@ -219,6 +232,10 @@ public interface CodegenConfig {
      * @return libray template
      */
     String getLibrary();
+
+    void setGitHost(String gitHost);
+
+    String getGitHost();
 
     void setGitUserId(String gitUserId);
 
@@ -239,8 +256,6 @@ public interface CodegenConfig {
     void setDocExtension(String docExtension);
 
     String getDocExtension();
-
-    String getCommonTemplateDir();
 
     void setIgnoreFilePathOverride(String ignoreFileOverride);
 
@@ -277,4 +292,12 @@ public interface CodegenConfig {
     boolean isStrictSpecBehavior();
 
     void setStrictSpecBehavior(boolean strictSpecBehavior);
+
+    FeatureSet getFeatureSet();
+
+    boolean isRemoveEnumValuePrefix();
+
+    void setRemoveEnumValuePrefix(boolean removeEnumValuePrefix);
+
+    Schema unaliasSchema(Schema schema, Map<String, String> usedImportMappings);
 }

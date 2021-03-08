@@ -1,4 +1,4 @@
-/* 
+/*
  * OpenAPI Petstore
  *
  * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
@@ -34,16 +34,16 @@ namespace Org.OpenAPITools.Model
         /// Initializes a new instance of the <see cref="Return" /> class.
         /// </summary>
         /// <param name="_return">_return.</param>
-        public Return(int? _return = default(int?))
+        public Return(int _return = default(int))
         {
             this._Return = _return;
         }
-        
+
         /// <summary>
         /// Gets or Sets _Return
         /// </summary>
         [DataMember(Name="return", EmitDefaultValue=false)]
-        public int? _Return { get; set; }
+        public int _Return { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -57,14 +57,14 @@ namespace Org.OpenAPITools.Model
             sb.Append("}\n");
             return sb.ToString();
         }
-  
+
         /// <summary>
         /// Returns the JSON string presentation of the object
         /// </summary>
         /// <returns>JSON string presentation of the object</returns>
         public virtual string ToJson()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
         }
 
         /// <summary>

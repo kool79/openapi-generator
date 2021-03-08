@@ -6,7 +6,7 @@ info:
   title: OpenAPI Petstore
   license:
     name: Apache-2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
   /example1/singular:
     get:
@@ -118,3 +118,15 @@ components:
           properties:
             city:
               type: string
+    DummyUser:
+      type: object
+      properties:
+        name:
+          type: string
+          pattern: '/^[a-z\s]+$/'
+        number:
+          type: string
+          pattern: '/[0-9]{10}/g'
+        address:
+          type: string
+          pattern: '/^[a-z0-9\s]+$/i'

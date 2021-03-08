@@ -5,6 +5,8 @@ title: Using Templates
 
 It's easy to work with templates for codegen!
 
+For maybe 90% of use cases, you will only need to modify the mustache template files to create your own custom generated code. If you need to include additional files in your generated output, manipulate the OpenAPI document inputs, or implement your own vendor extensions or other logic, you'll want to read [customization](./customization.md) after you read this document. Be sure to start here first, because templating is the easier concept and you'll need it for more advanced use cases.
+
 The generator workflow has [transforming logic](https://github.com/openapitools/openapi-generator/tree/master/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages) as well as templates for each generation of code.
 
 Each generator will create a data structure from the OpenAPI document; OpenAPI 2.0 and OpenAPI 3.x documents are normalized into the same API model within the generator. This model is then applied to the templates.  While generators do not need to perform transformations, it's often necessary in order to add more advanced support for your language or framework. You may need to refer to the generator implementation to understand some of the logic while creating or customizing templates (see [ScalaFinchServerCodegen.java](https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/ScalaFinchServerCodegen.java) for an advanced example).
@@ -16,7 +18,7 @@ The transform logic needs to implement [CodegenConfig.java](https://github.com/o
 > OpenAPI Generator applies user-defined templates via options:  
 > * CLI: `-t/--template` CLI options
 > * Maven Plugin: `templateDirectory`
-> * Gradle Plugin: `templateDir` 
+> * Gradle Plugin: `templateDir`
 
 Built-in templates are written in Mustache and processed by [jmustache](https://github.com/samskivert/jmustache). Beginning with version 4.0.0, we support experimental Handlebars and user-defined template engines via plugins.
 
@@ -24,15 +26,69 @@ OpenAPI Generator supports user-defined templates. This approach is often the ea
 
 > **Note:** You cannot use this approach to create new templates, only override existing ones. If you'd like to create a new generator to contribute back to the project, see `new.sh` in the repository root. If you'd like to create a private generator for more templating control, see the [customization](./customization.md) docs.
 
+OpenAPI Generator not only supports local files for templating, but also templates defined on the classpath. This is a great option if you want to reuse templates across multiple projects. To load a template via classpath, you'll need to generate a little differently. For example, if you've created an artifact called `template-classpath-example` which contains extended templates for the `htmlDocs` generator with the following structure:
+
+```
+└── src
+    ├── main
+    │   ├── java
+    │   └── resources
+    │       └── templates
+    │           └── htmlDocs
+    │               ├── index.mustache
+    │               └── style.css.mustache
+``` 
+
+You can define your classpath to contain your JAR and the openapi-generator-cli _fat jar_, then invoke main class `org.openapitools.codegen.OpenAPIGenerator`. For instance,
+
+```bash
+java -cp /path/totemplate-classpath-example-1.0-SNAPSHOT.jar:modules/openapi-generator-cli/target/openapi-generator-cli.jar \
+    org.openapitools.codegen.OpenAPIGenerator generate \
+    -i https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v3.0/petstore.yaml \
+    -g html -o template-example -t templates/htmlDocs
+```
+
+**NOTE** Running your custom generator in the example above requires adding it to the classpath. This differs on [Windows](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/classpath.html) slightly from [unix](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/classpath.html).
+
+Take note that our template directory is relative to the resource directory of the JAR defined on the classpath.
+
+### Retrieving Templates
+
+You will need to find and retrieve the templates for your desired generator in order to redefine structures, documentation, or API logic. We cover template customization in the following sections.
+
+In OpenAPI Generator 5.0 and later, you can use the CLI command `author template` to extract embedded templates for your target generator. For example:
+
+```
+openapi-generator author template -g java --library webclient
+```
+
+For OpenAPI Generator versions prior to 5.0, you will want to find the [resources directory](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources) for the generator you want to extend. This is generally easy to find as directories commonly follow the convention of `resources/<generator name>`. In cases where you're unsure, you will need to find the `embeddedTemplateDir` assignment in your desired generator. This is almost always assigned in the constructor of the generator class. The C# .Net Core generator assigns this as:
+
+```
+embeddedTemplateDir = templateDir = "csharp-netcore";
+```
+
+These templates are in our source repository at [modules/openapi-generator/src/main/resources/csharp-netcore](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources/csharp-netcore). Be sure to select the tag or branch for the version of OpenAPI Generator you're using before grabbing the templates.
+
+**NOTE** If you have specific logic you'd like to modify such as modifying the generated README, you _only_ need to pull and modify this individual template. OpenAPI Generator will lookup templates in this order:
+
+* User customized library path (e.g. `custom_template/libraries/feign/model.mustache`)
+* User customized generator top-level path (e.g. `custom_template/model.mustache`)
+* Embedded library path (e.g. `resources/Java/libraries/feign/model.mustache`)
+* Embedded top-level path (e.g. `resources/Java/model.mustache`)
+* Common embedded path (e.g. `resources/_common/model.mustache`)
+
 ### Custom Logic
 
-For this example, let's modify a Java client to use AOP via [jcabi/jcabi-aspects](https://github.com/jcabi/jcabi-aspects). We'll log API method execution at the `INFO` level. The jcabi-aspects project could also be used to implement method retries on failures; this would be a great exercise to further play around with templating. 
+For this example, let's modify a Java client to use AOP via [jcabi/jcabi-aspects](https://github.com/jcabi/jcabi-aspects). We'll log API method execution at the `INFO` level. The jcabi-aspects project could also be used to implement method retries on failures; this would be a great exercise to further play around with templating.
 
 The Java generator supports a `library` option. This option works by defining base templates, then applying library-specific template overrides. This allows for template reuse for libraries sharing the same programming language. Templates defined as a library need only modify or extend the templates concerning the library, and generation falls back to the root templates (the "defaults") when not extended by the library. Generators which support the `library` option will only support the libraries known by the generator at compile time, and will throw a runtime error if you try to provide a custom library name.
 
-To get started, we will need to copy our target generator's directory in full. The directory will be located under `modules/opeanpi-generator/src/main/resources/{generator}`. In general, the generator directory matches the generator name (what you would pass to the `generator` option), but this is not a requirement-- if you are having a hard time finding the template directory, look at the `embeddedTemplateDir` option in your target generator's implementation.
+To get started, we will need to copy our target generator's directory in full.
 
-If you've already cloned openapi-generator, find and copy the `modules/opeanpi-generator/src/main/resources/Java` directory. If you have the [Refined GitHub](https://github.com/sindresorhus/refined-github) Chrome or Firefox Extension, you can navigate to this directory on GitHub and click the "Download" button. Or, to pull the directory from latest master:
+The directory will be located under `modules/openapi-generator/src/main/resources/{generator}`. In general, the generator directory matches the generator name (what you would pass to the `generator` option), but this is not a requirement-- if you are having a hard time finding the template directory, look at the `embeddedTemplateDir` option in your target generator's implementation.
+
+If you've already cloned openapi-generator, find and copy the `modules/openapi-generator/src/main/resources/Java` directory. If you have the [Refined GitHub](https://github.com/sindresorhus/refined-github) Chrome or Firefox Extension, you can navigate to this directory on GitHub and click the "Download" button. Or, to pull the directory from latest master:
 
 ```bash
 mkdir -p ~/.openapi-generator/templates/ && cd $_
@@ -77,7 +133,7 @@ index 3b40702..a6d12e0 100644
 +++ b/libraries/resteasy/build.gradle.mustache
 @@ -134,6 +134,7 @@ ext {
  }
- 
+
  dependencies {
 +    compile "com.jcabi:jcabi-aspects:0.22.6"
      compile "io.swagger:swagger-annotations:$swagger_annotations_version"
@@ -95,7 +151,7 @@ index a4d0f9f..49b17c7 100644
 +++ b/libraries/resteasy/api.mustache
 @@ -1,5 +1,6 @@
  package {{package}};
- 
+
 +import com.jcabi.aspects.Loggable;
  import {{invokerPackage}}.ApiException;
  import {{invokerPackage}}.ApiClient;
@@ -103,7 +159,7 @@ index a4d0f9f..49b17c7 100644
 
 ```
 
-Next, we'll find the code which generates API methods. You'll see `{{#operations}}{{#operation}}` which is a mustache "loop" which executes the template logic if the model applied to the template has an `operations` array, and a non-null `operation` instance in that array. You can pass `-DdebugOpenAPI` when generating via CLI to inspect the full object model.
+Next, we'll find the code which generates API methods. You'll see `{{#operations}}{{#operation}}` which is a mustache "loop" which executes the template logic if the model applied to the template has an `operations` array, and a non-null `operation` instance in that array. You can pass `--global-property debugOpenAPI=true` when generating via CLI to inspect the full object model.
 
 Further down in `api.mustache`, find implementation of the method call, and add the `@Loggable` annotation. This template is easy because it has a single method implementation.
 
@@ -117,7 +173,7 @@ index 49b17c7..16ee191 100644
    @Deprecated
    {{/isDeprecated}}
 +  @Loggable(Loggable.INFO)
-   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}) throws ApiException {
+   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException {
      Object {{localVariablePrefix}}localVarPostBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}new Object(){{/bodyParam}};
      {{#allParams}}{{#required}}
 
@@ -134,7 +190,7 @@ index 04a9d55..7a93c50 100644
  apply plugin: 'idea'
  apply plugin: 'eclipse'
 +apply plugin: 'aspectj'
- 
+
  group = '{{groupId}}'
  version = '{{artifactVersion}}'
 @@ -12,6 +13,7 @@ buildscript {
@@ -144,14 +200,14 @@ index 04a9d55..7a93c50 100644
 +        classpath "net.uberfoo.gradle:gradle-aspectj:2.2"
      }
  }
- 
+
 @@ -140,9 +142,18 @@ ext {
      jersey_version = "1.19.4"
      jodatime_version = "2.9.9"
-     junit_version = "4.12"
+     junit_version = "4.13"
 +    aspectjVersion = '1.9.0'
  }
- 
+
 +sourceCompatibility = '1.8'
 +targetCompatibility = '1.8'
 +
@@ -191,7 +247,7 @@ Now we're ready to generate the client with our simple changes. When we pass the
 openapi-generator generate -g java --library resteasy \
     -t ~/.openapi-generator/templates/Java \
     -o ~/.openapi-generator/example \
-    -i https://raw.githubusercontent.com/openapitools/openapi-generator/master/modules/openapi-generator/src/test/resources/2_0/petstore.yaml
+    -i https://raw.githubusercontent.com/openapitools/openapi-generator/master/modules/openapi-generator/src/test/resources/3_0/petstore.yaml
 ```
 
 Make sure your custom template compiles:
@@ -199,7 +255,7 @@ Make sure your custom template compiles:
 ```bash
 cd ~/.openapi-generator/example
 gradle assemble
-# or, regenerate the wrapper 
+# or, regenerate the wrapper
 gradle wrapper --gradle-version 4.8 --distribution-type all
 ./gradlew assemble
 ```
@@ -291,7 +347,7 @@ Modifications to the new project's `build.gradle` should be made in the `plugins
     id 'org.jetbrains.kotlin.jvm' version '1.3.11'
     id "com.github.johnrengelman.shadow" version "5.0.0"
  }
- 
+
  dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.openapitools:openapi-generator-core:4.0.0-SNAPSHOT"
@@ -301,7 +357,7 @@ Modifications to the new project's `build.gradle` should be made in the `plugins
 
 The above configuration for the `shadow` plugin is strictly optional. It is not needed, for instance, if you plan to publish your adapter and consume it via the Maven or Gradle plugins.
 
-Next, create a new class file called `PebbleTemplateEngineAdapter` under `src/kotlin`. We'll define the template adapter's name as `pebble` and we'll also list this as the only supported file extension. We'll implement the adapter by extending `AbstractTemplatingEngineAdapter`, which includes reusable logic, such as retrieving a list of all possible template names for our provided template extensions(s). 
+Next, create a new class file called `PebbleTemplateEngineAdapter` under `src/kotlin`. We'll define the template adapter's name as `pebble` and we'll also list this as the only supported file extension. We'll implement the adapter by extending `AbstractTemplatingEngineAdapter`, which includes reusable logic, such as retrieving a list of all possible template names for our provided template extensions(s).
 
 The class in its simplest form looks like this (with inline comments):
 
@@ -374,7 +430,7 @@ import (
 {% endfor %}
 )
 
-type Generated{{classname}}Servicer 
+type Generated{{classname}}Servicer
 
 // etc
 ```
@@ -402,7 +458,7 @@ type {{item.classname}} struct {
 
 > Find object structures passed to templates later in this document's **Structures** section.
 
-Finally, we can compile some code by explicitly defining our classpath and jar entrypoint for CLI (be sure to modify `/your/path` below) 
+Finally, we can compile some code by explicitly defining our classpath and jar entrypoint for CLI (be sure to modify `/your/path` below)
 
 ```bash
 java $JAVA_OPTS -cp /your/path/build/libs/pebble-template-adapter-1.0-SNAPSHOT-all.jar:modules/openapi-generator-cli/target/openapi-generator-cli.jar \
@@ -413,10 +469,12 @@ java $JAVA_OPTS -cp /your/path/build/libs/pebble-template-adapter-1.0-SNAPSHOT-a
     -e pebble \
     -o /tmp/pebble-example/out \
     -t /tmp/pebble-example/templates \
-    -Dmodels -DmodelDocs=false -DmodelTests=false -Dapis -DapiTests=false -DapiDocs=false
+    --global-property models,modelDocs,modelTests,apis,apiTests,apiDocs
 ```
 
-Notice how we've targeted our custom template engine adapter via `-e pebble`. If you don't include the SPI file under `META-INF/services`, you'll need to specify the exact classpath: `org.openapitools.examples.templating.PebbleTemplateAdapter`. Notice that the target class here matches the Kotlin class name. This is because of the `@file:JvmName` annotation.
+**NOTE** Running your custom generator requires adding it to the classpath. This differs on [Windows](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/classpath.html) slightly from [unix](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/classpath.html).
+
+In the above example, we've targeted our custom template engine adapter via `-e pebble`. If you don't include the SPI file under `META-INF/services`, you'll need to specify the exact classpath: `org.openapitools.examples.templating.PebbleTemplateAdapter`. Notice that the target class here matches the Kotlin class name. This is because of the `@file:JvmName` annotation.
 
 Congratulations on creating a custom templating engine adapter!
 
@@ -428,64 +486,64 @@ Examples for the following structures will be presented using the following spec
 
 ```yaml
   swagger: "2.0"
-  info: 
+  info:
     version: "1.0.0"
     title: "Swagger Petstore"
     description: "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification"
     termsOfService: "http://swagger.io/terms/"
-    contact: 
+    contact:
       name: "Swagger API Team"
-    license: 
+    license:
       name: "MIT"
   host: "petstore.swagger.io"
   basePath: "/api"
-  schemes: 
+  schemes:
     - "http"
-  consumes: 
+  consumes:
     - "application/json"
-  produces: 
+  produces:
     - "application/json"
-  paths: 
-    /pets: 
-      get: 
+  paths:
+    /pets:
+      get:
         description: "Returns all pets from the system that the user has access to"
-        produces: 
+        produces:
           - "application/json"
-        responses: 
+        responses:
           "200":
             description: "A list of pets."
-            schema: 
+            schema:
               type: "array"
-              items: 
+              items:
                 $ref: "#/definitions/Pet"
-  definitions: 
-    Pet: 
+  definitions:
+    Pet:
       type: "object"
-      required: 
+      required:
         - "id"
         - "name"
-      properties: 
-        id: 
+      properties:
+        id:
           type: "integer"
           format: "int64"
-        name: 
+        name:
           type: "string"
-        tag: 
+        tag:
           type: "string"
 
 ```
 
 ### Operations
 
-> Inspect operation structures passed to templates with system property `-DdebugOpenAPI`
-> 
+> Inspect operation structures passed to templates with system property `--global-property debugOpenAPI=true`
+>
 > Example:
-> 
+>
 > ```bash
 > openapi-generator generate -g go \
 >     -o out \
 >     -i petstore-minimal.yaml \
->     -DdebugOpenAPI
+>     --global-property debugOpenAPI=true
 > ```
 >
 
@@ -500,7 +558,7 @@ apiTemplateFiles.put("api.mustache", ".java");
 
 For C-like languages which also require header files, you may create two files per operation.
 
-```objc
+```objectivec
 // create a header and implementation for each operation group:
 apiTemplateFiles.put("api-header.mustache", ".h");
 apiTemplateFiles.put("api-body.mustache", ".m");
@@ -509,21 +567,21 @@ Here, an Operation with tag `Pet` will generate two files: `SWGPetApi.h` and `SW
 
 ### Models
 
-> Inspect models passed to templates with system property `-DdebugModels`
-> 
+> Inspect models passed to templates with system property `--global-property debugModels=true`
+>
 > Execute:
-> 
+>
 > ```bash
 > openapi-generator generate -g go \
 >     -o out \
 >     -i petstore-minimal.yaml \
->     -DdebugModels
+>     --global-property debugModels=true
 > ```
 >
 
 Each model identified inside the generator will be passed into the `Models` data structure and will generate a new model file (or files) for each model.
 
-A `Pet` model with three properties will provide a _lot_ of information about the type and properties. The output from `-DdebugModels` is presented in truncated format here.
+A `Pet` model with three properties will provide a _lot_ of information about the type and properties. The output from `--global-property debugModels=true` is presented in truncated format here.
 
 ```json
 [ {
@@ -552,9 +610,7 @@ A `Pet` model with three properties will provide a _lot_ of information about th
       "jsonSchema" : "{\n  \"type\" : \"integer\",\n  \"format\" : \"int64\"\n}",
       "exclusiveMinimum" : false,
       "exclusiveMaximum" : false,
-      "hasMore" : true,
       "required" : true,
-      "secondaryParam" : false,
       "hasMoreNonReadOnly" : true,
       "isPrimitiveType" : true,
       "isModel" : false,
@@ -576,8 +632,8 @@ A `Pet` model with three properties will provide a _lot_ of information about th
       "isUuid" : false,
       "isEmail" : false,
       "isFreeFormObject" : false,
-      "isListContainer" : false,
-      "isMapContainer" : false,
+      "isArray" : false,
+      "isMap" : false,
       "isEnum" : false,
       "isReadOnly" : false,
       "isWriteOnly" : false,
@@ -604,9 +660,7 @@ A `Pet` model with three properties will provide a _lot_ of information about th
       "jsonSchema" : "{\n  \"type\" : \"string\"\n}",
       "exclusiveMinimum" : false,
       "exclusiveMaximum" : false,
-      "hasMore" : true,
       "required" : true,
-      "secondaryParam" : false,
       "hasMoreNonReadOnly" : true,
       "isPrimitiveType" : true,
       "isModel" : false,
@@ -628,8 +682,8 @@ A `Pet` model with three properties will provide a _lot_ of information about th
       "isUuid" : false,
       "isEmail" : false,
       "isFreeFormObject" : false,
-      "isListContainer" : false,
-      "isMapContainer" : false,
+      "isArray" : false,
+      "isMap" : false,
       "isEnum" : false,
       "isReadOnly" : false,
       "isWriteOnly" : false,
@@ -656,9 +710,7 @@ A `Pet` model with three properties will provide a _lot_ of information about th
       "jsonSchema" : "{\n  \"type\" : \"string\"\n}",
       "exclusiveMinimum" : false,
       "exclusiveMaximum" : false,
-      "hasMore" : false,
       "required" : false,
-      "secondaryParam" : false,
       "hasMoreNonReadOnly" : false,
       "isPrimitiveType" : true,
       "isModel" : false,
@@ -680,8 +732,8 @@ A `Pet` model with three properties will provide a _lot_ of information about th
       "isUuid" : false,
       "isEmail" : false,
       "isFreeFormObject" : false,
-      "isListContainer" : false,
-      "isMapContainer" : false,
+      "isArray" : false,
+      "isMap" : false,
       "isEnum" : false,
       "isReadOnly" : false,
       "isWriteOnly" : false,
@@ -712,9 +764,9 @@ A `Pet` model with three properties will provide a _lot_ of information about th
     "isEnum" : false,
     "hasRequired" : true,
     "hasOptional" : true,
-    "isArrayModel" : false,
+    "isArray" : false,
     "hasChildren" : false,
-    "isMapModel" : false,
+    "isMap" : false,
     "hasOnlyReadOnly" : false,
     "vendorExtensions" : { }
   }
@@ -730,19 +782,19 @@ Templates are passed redundant properties, depending on the semantics of the arr
 * `readOnlyVars` lists all model properties marked with `readonly` in the spec document
 * `allVars` lists all model properties. This may include the same set as `vars`, but may also include generator-defined properties
 
-We expose the same properties in multiple sets because this allows us to conditionally iterate over properties based on some condition ("is it required" or "is it readonly"). This is driven by the use of the logic-less Mustache templates. It is possible that models passed to the templating engine may be cleaned up as we support more template engines, but such an effort will go through a deprecation phase and would be communicated at runtime through log messages. 
+We expose the same properties in multiple sets because this allows us to conditionally iterate over properties based on some condition ("is it required" or "is it readonly"). This is driven by the use of the logic-less Mustache templates. It is possible that models passed to the templating engine may be cleaned up as we support more template engines, but such an effort will go through a deprecation phase and would be communicated at runtime through log messages.
 
 ### supportingFiles
 
-> Inspect supportingFiles passed to templates with system property `-DdebugSupportingFiles`
-> 
+> Inspect supportingFiles passed to templates with system property `--global-property debugSupportingFiles=true`
+>
 > Execute:
-> 
+>
 > ```bash
 > openapi-generator generate -g go \
 >     -o out \
 >     -i petstore-minimal.yaml \
->     -DdebugSupportingFiles
+>     --global-property debugSupportingFiles=true
 > ```
 >
 
@@ -755,9 +807,24 @@ Supporting files can either be processed through the templating engine or copied
 
 > This is a very limited list of variable name explanations. Feel free to [open a pull request](https://github.com/OpenAPITools/openapi-generator/pull/new/master) to add to this documentation!
 
-- **complexType**: stores the name of the model (e.g. Pet) 
+- **complexType**: stores the name of the model (e.g. Pet)
 - **isContainer**: true if the parameter or property is an array or a map.
 - **isPrimitiveType**: true if the parameter or property type is a primitive type (e.g. string, integer, etc) as defined in the spec.
+
+## Mustache Lambdas
+
+Many generators (*those extending DefaultCodegen*) come with a small set of lambda functions available under the key `lambda`:
+
+- `lowercase` - Converts all of the characters in this fragment to lower case using the rules of the `ROOT` locale.
+- `uppercase` - Converts all of the characters in this fragment to upper case using the rules of the `ROOT` locale.
+- `titlecase` - Converts text in a fragment to title case. For example `once upon a time` to `Once Upon A Time`.
+- `camelcase` - Converts text in a fragment to camelCase. For example `Input-text` to `inputText`.
+- `indented` - Prepends 4 spaces indention from second line of a fragment on. First line will be indented by Mustache.
+- `indented_8` - Prepends 8 spaces indention from second line of a fragment on. First line will be indented by Mustache.
+- `indented_12` - Prepends 12 spaces indention from second line of a fragment on. First line will be indented by Mustache.
+- `indented_16` -Prepends 16 spaces indention from second line of a fragment on. First line will be indented by Mustache.
+
+Lambda is invoked by `lambda.[lambda name]` expression. For example: `{{#lambda.lowercase}}FRAGMENT TO LOWERCASE{{/lambda.lowercase}}` to lower case text between `lambda.lowercase`.
 
 ## Extensions
 
@@ -861,7 +928,7 @@ paths:
 
 #### x-mysqlSchema
 
-MySQL schema generator creates vendor extensions based on openapi `dataType` and `dataFormat`. When user defined extensions with same key already exists codegen accepts those as is. It means it won't validate properties or correct it for you. Every model in `definitions` can contain table related and column related extensions like in example below: 
+MySQL schema generator creates vendor extensions based on openapi `dataType` and `dataFormat`. When user defined extensions with same key already exists codegen accepts those as is. It means it won't validate properties or correct it for you. Every model in `definitions` can contain table related and column related extensions like in example below:
 
 ```yaml
 definitions:
@@ -881,10 +948,8 @@ definitions:
             colDataTypeArguments:
               - argumentValue: 16
                 isString: false
-                hasMore: true
               - argumentValue: 4
                 isString: false
-                hasMore: false
             colUnsigned: true
             colNotNull: true
             colDefault:

@@ -1,4 +1,4 @@
-/* 
+/*
  * OpenAPI Petstore
  *
  * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
@@ -36,18 +36,18 @@ namespace Org.OpenAPITools.Model
         /// <param name="myNumber">myNumber.</param>
         /// <param name="myString">myString.</param>
         /// <param name="myBoolean">myBoolean.</param>
-        public OuterComposite(decimal? myNumber = default(decimal?), string myString = default(string), bool? myBoolean = default(bool?))
+        public OuterComposite(decimal myNumber = default(decimal), string myString = default(string), bool myBoolean = default(bool))
         {
             this.MyNumber = myNumber;
             this.MyString = myString;
             this.MyBoolean = myBoolean;
         }
-        
+
         /// <summary>
         /// Gets or Sets MyNumber
         /// </summary>
         [DataMember(Name="my_number", EmitDefaultValue=false)]
-        public decimal? MyNumber { get; set; }
+        public decimal MyNumber { get; set; }
 
         /// <summary>
         /// Gets or Sets MyString
@@ -59,7 +59,7 @@ namespace Org.OpenAPITools.Model
         /// Gets or Sets MyBoolean
         /// </summary>
         [DataMember(Name="my_boolean", EmitDefaultValue=false)]
-        public bool? MyBoolean { get; set; }
+        public bool MyBoolean { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -75,14 +75,14 @@ namespace Org.OpenAPITools.Model
             sb.Append("}\n");
             return sb.ToString();
         }
-  
+
         /// <summary>
         /// Returns the JSON string presentation of the object
         /// </summary>
         /// <returns>JSON string presentation of the object</returns>
         public virtual string ToJson()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
         }
 
         /// <summary>

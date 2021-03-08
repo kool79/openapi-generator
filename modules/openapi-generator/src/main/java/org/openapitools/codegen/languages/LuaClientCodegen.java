@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,9 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
+import org.openapitools.codegen.meta.GeneratorMetadata;
+import org.openapitools.codegen.meta.Stability;
+import org.openapitools.codegen.meta.features.*;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +35,7 @@ import static org.openapitools.codegen.utils.StringUtils.camelize;
 import static org.openapitools.codegen.utils.StringUtils.underscore;
 
 public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LuaClientCodegen.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(LuaClientCodegen.class);
 
     protected String specFolder = "spec";
     protected String packageName = "openapiclient";
@@ -55,6 +58,33 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
 
     public LuaClientCodegen() {
         super();
+
+        modifyFeatureSet(features -> features
+                .includeDocumentationFeatures(DocumentationFeature.Readme)
+                .wireFormatFeatures(EnumSet.of(WireFormatFeature.JSON, WireFormatFeature.XML))
+                .securityFeatures(EnumSet.of(
+                        SecurityFeature.BasicAuth,
+                        SecurityFeature.ApiKey,
+                        SecurityFeature.OAuth2_Implicit
+                ))
+                .excludeGlobalFeatures(
+                        GlobalFeature.XMLStructureDefinitions,
+                        GlobalFeature.Callbacks,
+                        GlobalFeature.LinkObjects,
+                        GlobalFeature.ParameterStyling
+                )
+                .includeSchemaSupportFeatures(
+                        SchemaSupportFeature.Polymorphism
+                )
+                .includeParameterFeatures(
+                        ParameterFeature.Cookie
+                )
+        );
+
+        generatorMetadata = GeneratorMetadata.newBuilder(generatorMetadata)
+            .stability(Stability.BETA)
+            .build();
+
         outputFolder = "generated-code/lua";
         modelTemplateFiles.put("model.mustache", ".lua");
         apiTemplateFiles.put("api.mustache", ".lua");
@@ -337,7 +367,7 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
             Schema inner = ap.getItems();
             return getTypeDeclaration(inner);
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = ModelUtils.getAdditionalProperties(p);
+            Schema inner = getAdditionalProperties(p);
             return getTypeDeclaration(inner);
         }
 
@@ -550,5 +580,17 @@ public class LuaClientCodegen extends DefaultCodegen implements CodegenConfig {
         }
 
         return name;
+    }
+
+    @Override
+    public void postProcess() {
+        System.out.println("################################################################################");
+        System.out.println("# Thanks for using OpenAPI Generator.                                          #");
+        System.out.println("# Please consider donation to help us maintain this project \uD83D\uDE4F                 #");
+        System.out.println("# https://opencollective.com/openapi_generator/donate                          #");
+        System.out.println("#                                                                              #");
+        System.out.println("# This generator is contributed by daurnimator (https://github.com/daurnimator)#");
+        System.out.println("# Pls support his work directly via https://github.com/sponsors/daurnimator \uD83D\uDE4F #");
+        System.out.println("################################################################################");
     }
 }

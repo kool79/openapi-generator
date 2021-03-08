@@ -22,6 +22,7 @@ For valid response try integer IDs with value < 1000. Anything above 1000 or non
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -73,6 +74,13 @@ No authorization required
 - **Content-Type**: Not defined
 - **Accept**: Not defined
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **400** | Invalid ID supplied |  -  |
+| **404** | Order not found |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -81,7 +89,7 @@ No authorization required
 
 ## GetInventory
 
-> Dictionary<string, int?> GetInventory ()
+> Dictionary&lt;string, int&gt; GetInventory ()
 
 Returns pet inventories by status
 
@@ -90,6 +98,7 @@ Returns a map of status codes to quantities
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -112,7 +121,7 @@ namespace Example
             try
             {
                 // Returns pet inventories by status
-                Dictionary&lt;string, int?&gt; result = apiInstance.GetInventory();
+                Dictionary<string, int> result = apiInstance.GetInventory();
                 Debug.WriteLine(result);
             }
             catch (ApiException e)
@@ -132,7 +141,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-**Dictionary<string, int?>**
+**Dictionary<string, int>**
 
 ### Authorization
 
@@ -143,6 +152,12 @@ This endpoint does not need any parameter.
 - **Content-Type**: Not defined
 - **Accept**: application/json
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful operation |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -151,7 +166,7 @@ This endpoint does not need any parameter.
 
 ## GetOrderById
 
-> Order GetOrderById (long? orderId)
+> Order GetOrderById (long orderId)
 
 Find purchase order by ID
 
@@ -160,6 +175,7 @@ For valid response try integer IDs with value <= 5 or > 10. Other values will ge
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -173,7 +189,7 @@ namespace Example
         {
             Configuration.Default.BasePath = "http://petstore.swagger.io:80/v2";
             var apiInstance = new StoreApi(Configuration.Default);
-            var orderId = 789;  // long? | ID of pet that needs to be fetched
+            var orderId = 789;  // long | ID of pet that needs to be fetched
 
             try
             {
@@ -197,7 +213,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **orderId** | **long?**| ID of pet that needs to be fetched | 
+ **orderId** | **long**| ID of pet that needs to be fetched | 
 
 ### Return type
 
@@ -212,6 +228,14 @@ No authorization required
 - **Content-Type**: Not defined
 - **Accept**: application/xml, application/json
 
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful operation |  -  |
+| **400** | Invalid ID supplied |  -  |
+| **404** | Order not found |  -  |
+
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)
@@ -220,13 +244,14 @@ No authorization required
 
 ## PlaceOrder
 
-> Order PlaceOrder (Order body)
+> Order PlaceOrder (Order order)
 
 Place an order for a pet
 
 ### Example
 
 ```csharp
+using System.Collections.Generic;
 using System.Diagnostics;
 using Org.OpenAPITools.Api;
 using Org.OpenAPITools.Client;
@@ -240,12 +265,12 @@ namespace Example
         {
             Configuration.Default.BasePath = "http://petstore.swagger.io:80/v2";
             var apiInstance = new StoreApi(Configuration.Default);
-            var body = new Order(); // Order | order placed for purchasing the pet
+            var order = new Order(); // Order | order placed for purchasing the pet
 
             try
             {
                 // Place an order for a pet
-                Order result = apiInstance.PlaceOrder(body);
+                Order result = apiInstance.PlaceOrder(order);
                 Debug.WriteLine(result);
             }
             catch (ApiException e)
@@ -264,7 +289,7 @@ namespace Example
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**Order**](Order.md)| order placed for purchasing the pet | 
+ **order** | [**Order**](Order.md)| order placed for purchasing the pet | 
 
 ### Return type
 
@@ -276,8 +301,15 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/xml, application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successful operation |  -  |
+| **400** | Invalid Order |  -  |
 
 [[Back to top]](#)
 [[Back to API list]](../README.md#documentation-for-api-endpoints)

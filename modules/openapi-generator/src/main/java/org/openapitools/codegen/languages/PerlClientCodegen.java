@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,19 +22,21 @@ import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
+import org.openapitools.codegen.meta.features.*;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.regex.Matcher;
 
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 import static org.openapitools.codegen.utils.StringUtils.underscore;
 
 public class PerlClientCodegen extends DefaultCodegen implements CodegenConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PerlClientCodegen.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(PerlClientCodegen.class);
 
     public static final String MODULE_NAME = "moduleName";
     public static final String MODULE_VERSION = "moduleVersion";
@@ -48,6 +50,30 @@ public class PerlClientCodegen extends DefaultCodegen implements CodegenConfig {
 
     public PerlClientCodegen() {
         super();
+
+        modifyFeatureSet(features -> features
+                .includeDocumentationFeatures(DocumentationFeature.Readme)
+                .wireFormatFeatures(EnumSet.of(WireFormatFeature.JSON, WireFormatFeature.XML))
+                .securityFeatures(EnumSet.of(
+                        SecurityFeature.ApiKey,
+                        SecurityFeature.BasicAuth,
+                        SecurityFeature.BearerToken,
+                        SecurityFeature.OAuth2_Implicit
+                ))
+                .excludeGlobalFeatures(
+                        GlobalFeature.XMLStructureDefinitions,
+                        GlobalFeature.Callbacks,
+                        GlobalFeature.LinkObjects,
+                        GlobalFeature.ParameterStyling
+                )
+                .includeSchemaSupportFeatures(
+                        SchemaSupportFeature.Polymorphism
+                )
+                .includeClientModificationFeatures(
+                        ClientModificationFeature.BasePath,
+                        ClientModificationFeature.UserAgent
+                )
+        );
 
         // add multiple inheritance support (beta)
         supportsMultipleInheritance = true;
@@ -105,6 +131,7 @@ public class PerlClientCodegen extends DefaultCodegen implements CodegenConfig {
         typeMapping.put("DateTime", "DateTime");
         typeMapping.put("password", "string");
         typeMapping.put("array", "ARRAY");
+        typeMapping.put("set", "ARRAY");
         typeMapping.put("map", "HASH");
         typeMapping.put("object", "object");
         typeMapping.put("binary", "string");
@@ -167,6 +194,7 @@ public class PerlClientCodegen extends DefaultCodegen implements CodegenConfig {
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("gitignore.mustache", "", ".gitignore"));
         supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
+        supportingFiles.add(new SupportingFile("travis.mustache", "", ".travis.yml"));
     }
 
     @Override
@@ -229,7 +257,7 @@ public class PerlClientCodegen extends DefaultCodegen implements CodegenConfig {
             Schema inner = ap.getItems();
             return getSchemaType(p) + "[" + getTypeDeclaration(inner) + "]";
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = ModelUtils.getAdditionalProperties(p);
+            Schema inner = getAdditionalProperties(p);
             return getSchemaType(p) + "[string," + getTypeDeclaration(inner) + "]";
         }
         return super.getTypeDeclaration(p);
@@ -480,10 +508,10 @@ public class PerlClientCodegen extends DefaultCodegen implements CodegenConfig {
         }
 
         // container
-        if (Boolean.TRUE.equals(p.isListContainer)) {
+        if (Boolean.TRUE.equals(p.isArray)) {
             example = setPropertyExampleValue(p.items);
             example = "(" + example + ")";
-        } else if (Boolean.TRUE.equals(p.isMapContainer)) {
+        } else if (Boolean.TRUE.equals(p.isMap)) {
             example = setPropertyExampleValue(p.items);
             example = "('key' =>  " + example + "}";
         } else if (example == null) {

@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.openapitools.codegen.*;
+import org.openapitools.codegen.meta.features.*;
+import org.openapitools.codegen.utils.ModelUtils;
 import org.openapitools.codegen.utils.URLPathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
     public static final String USE_SWASHBUCKLE = "useSwashbuckle";
     public static final String ASPNET_CORE_VERSION = "aspnetCoreVersion";
+    public static final String SWASHBUCKLE_VERSION = "swashbuckleVersion";
     public static final String CLASS_MODIFIER = "classModifier";
     public static final String OPERATION_MODIFIER = "operationModifier";
     public static final String OPERATION_IS_ASYNC = "operationIsAsync";
@@ -45,43 +48,83 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     public static final String GENERATE_BODY = "generateBody";
     public static final String BUILD_TARGET = "buildTarget";
     public static final String MODEL_CLASS_MODIFIER = "modelClassModifier";
+    public static final String TARGET_FRAMEWORK= "targetFramework";
 
     public static final String PROJECT_SDK = "projectSdk";
     public static final String SDK_WEB = "Microsoft.NET.Sdk.Web";
     public static final String SDK_LIB = "Microsoft.NET.Sdk";
     public static final String COMPATIBILITY_VERSION = "compatibilityVersion";
     public static final String IS_LIBRARY = "isLibrary";
+    public static final String USE_FRAMEWORK_REFERENCE = "useFrameworkReference";
+    public static final String USE_NEWTONSOFT = "useNewtonsoft";
+    public static final String USE_DEFAULT_ROUTING = "useDefaultRouting";
+    public static final String NEWTONSOFT_VERSION = "newtonsoftVersion";
 
     private String packageGuid = "{" + randomUUID().toString().toUpperCase(Locale.ROOT) + "}";
+    private String userSecretsGuid = randomUUID().toString();
 
-    @SuppressWarnings("hiding")
     protected Logger LOGGER = LoggerFactory.getLogger(AspNetCoreServerCodegen.class);
 
     private boolean useSwashbuckle = true;
     protected int serverPort = 8080;
     protected String serverHost = "0.0.0.0";
-    protected CliOption aspnetCoreVersion = new CliOption(ASPNET_CORE_VERSION, "ASP.NET Core version: 2.2 (default), 2.1, 2.0 (deprecated)");
-    ; // default to 2.1
-    private CliOption classModifier = new CliOption(CLASS_MODIFIER, "Class Modifier can be empty, abstract");
-    private CliOption operationModifier = new CliOption(OPERATION_MODIFIER, "Operation Modifier can be virtual, abstract or partial");
+    protected CliOption swashbuckleVersion = new CliOption(SWASHBUCKLE_VERSION, "Swashbuckle version: 3.0.0, 4.0.0, 5.0.0");
+    protected CliOption aspnetCoreVersion = new CliOption(ASPNET_CORE_VERSION, "ASP.NET Core version: 5.0, 3.1, 3.0, 2.2, 2.1, 2.0 (deprecated)");
+    private CliOption classModifier = new CliOption(CLASS_MODIFIER, "Class Modifier for controller classes: Empty string or abstract.");
+    private CliOption operationModifier = new CliOption(OPERATION_MODIFIER, "Operation Modifier can be virtual or abstract");
     private CliOption modelClassModifier = new CliOption(MODEL_CLASS_MODIFIER, "Model Class Modifier can be nothing or partial");
     private boolean generateBody = true;
     private CliOption buildTarget = new CliOption("buildTarget", "Target to build an application or library");
     private String projectSdk = SDK_WEB;
-    private String compatibilityVersion = "Version_2_1";
+    private String compatibilityVersion = "Version_2_2";
     private boolean operationIsAsync = false;
     private boolean operationResultTask = false;
     private boolean isLibrary = false;
+    private boolean useFrameworkReference = false;
+    private boolean useNewtonsoft = true;
+    private boolean useDefaultRouting = true;
+    private String newtonsoftVersion = "3.0.0";
 
     public AspNetCoreServerCodegen() {
         super();
+
+        // TODO: AspnetCore community review
+        modifyFeatureSet(features -> features
+                .includeDocumentationFeatures(DocumentationFeature.Readme)
+                .excludeWireFormatFeatures(WireFormatFeature.PROTOBUF)
+                .includeSecurityFeatures(
+                        SecurityFeature.ApiKey,
+                        SecurityFeature.BasicAuth,
+                        SecurityFeature.BearerToken
+                )
+                .excludeSecurityFeatures(
+                        SecurityFeature.OpenIDConnect,
+                        SecurityFeature.OAuth2_Password,
+                        SecurityFeature.OAuth2_AuthorizationCode,
+                        SecurityFeature.OAuth2_ClientCredentials,
+                        SecurityFeature.OAuth2_Implicit
+                )
+                .excludeGlobalFeatures(
+                        GlobalFeature.XMLStructureDefinitions,
+                        GlobalFeature.Callbacks,
+                        GlobalFeature.LinkObjects,
+                        GlobalFeature.ParameterStyling,
+                        GlobalFeature.MultiServer
+                )
+                .includeSchemaSupportFeatures(
+                        SchemaSupportFeature.Polymorphism
+                )
+                .includeParameterFeatures(
+                        ParameterFeature.Cookie
+                )
+        );
 
         outputFolder = "generated-code" + File.separator + getName();
 
         modelTemplateFiles.put("model.mustache", ".cs");
         apiTemplateFiles.put("controller.mustache", ".cs");
 
-        embeddedTemplateDir = templateDir = "aspnetcore/2.1";
+        embeddedTemplateDir = templateDir = "aspnetcore/3.0";
 
         // contextually reserved words
         // NOTE: C# uses camel cased reserved words, while models are title cased. We don't want lowercase comparisons.
@@ -143,12 +186,22 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         addOption(COMPATIBILITY_VERSION, "ASP.Net Core CompatibilityVersion", compatibilityVersion);
 
-        aspnetCoreVersion.addEnum("2.0", "ASP.NET COre 2.0");
+        aspnetCoreVersion.addEnum("2.0", "ASP.NET Core 2.0");
         aspnetCoreVersion.addEnum("2.1", "ASP.NET Core 2.1");
         aspnetCoreVersion.addEnum("2.2", "ASP.NET Core 2.2");
-        aspnetCoreVersion.setDefault("2.2");
+        aspnetCoreVersion.addEnum("3.0", "ASP.NET Core 3.0");
+        aspnetCoreVersion.addEnum("3.1", "ASP.NET Core 3.1");
+        aspnetCoreVersion.addEnum("5.0", "ASP.NET Core 5.0");
+        aspnetCoreVersion.setDefault("3.1");
         aspnetCoreVersion.setOptValue(aspnetCoreVersion.getDefault());
         addOption(aspnetCoreVersion.getOpt(), aspnetCoreVersion.getDescription(), aspnetCoreVersion.getOptValue());
+
+        swashbuckleVersion.addEnum("3.0.0", "Swashbuckle 3.0.0");
+        swashbuckleVersion.addEnum("4.0.0", "Swashbuckle 4.0.0");
+        swashbuckleVersion.addEnum("5.0.0", "Swashbuckle 5.0.0");
+        swashbuckleVersion.setDefault("3.0.0");
+        swashbuckleVersion.setOptValue(swashbuckleVersion.getDefault());
+        addOption(swashbuckleVersion.getOpt(), swashbuckleVersion.getDescription(), swashbuckleVersion.getOptValue());
 
         // CLI Switches
         addSwitch(CodegenConstants.SORT_PARAMS_BY_REQUIRED_FLAG,
@@ -175,6 +228,30 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
                 "Is the build a library",
                 isLibrary);
 
+        addSwitch(USE_FRAMEWORK_REFERENCE,
+                "Use frameworkReference for ASP.NET Core 3.0+ and PackageReference ASP.NET Core 2.2 or earlier.",
+                useFrameworkReference);
+
+        addSwitch(USE_NEWTONSOFT,
+                "Uses the Newtonsoft JSON library.",
+                useNewtonsoft);
+
+        addOption(NEWTONSOFT_VERSION,
+                "Version for Microsoft.AspNetCore.Mvc.NewtonsoftJson for ASP.NET Core 3.0+",
+                newtonsoftVersion);
+
+        addSwitch(USE_DEFAULT_ROUTING,
+                "Use default routing for the ASP.NET Core version.",
+                useDefaultRouting);
+
+        addOption(CodegenConstants.ENUM_NAME_SUFFIX,
+                CodegenConstants.ENUM_NAME_SUFFIX_DESC,
+                enumNameSuffix);
+
+        addOption(CodegenConstants.ENUM_VALUE_SUFFIX,
+                "Suffix that will be appended to all enum values.",
+                enumValueSuffix);
+
         classModifier.addEnum("", "Keep class default with no modifier");
         classModifier.addEnum("abstract", "Make class abstract");
         classModifier.setDefault("");
@@ -188,7 +265,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         addOption(operationModifier.getOpt(), operationModifier.getDescription(), operationModifier.getOptValue());
 
         buildTarget.addEnum("program", "Generate code for a standalone server");
-        buildTarget.addEnum("library", "Generate code for a server abstract class lbrary");
+        buildTarget.addEnum("library", "Generate code for a server abstract class library");
         buildTarget.setDefault("program");
         buildTarget.setOptValue(buildTarget.getDefault());
         addOption(buildTarget.getOpt(), buildTarget.getDescription(), buildTarget.getOptValue());
@@ -211,7 +288,6 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         modelClassModifier.setDefault("partial");
         modelClassModifier.setOptValue(modelClassModifier.getDefault());
         addOption(modelClassModifier.getOpt(), modelClassModifier.getDescription(), modelClassModifier.getOptValue());
-
     }
 
     @Override
@@ -232,7 +308,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
-        URL url = URLPathUtils.getServerURL(openAPI);
+        URL url = URLPathUtils.getServerURL(openAPI, serverVariableOverrides());
         additionalProperties.put("serverHost", url.getHost());
         additionalProperties.put("serverPort", URLPathUtils.getPort(url, 8080));
     }
@@ -245,9 +321,15 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             setPackageGuid((String) additionalProperties.get(CodegenConstants.OPTIONAL_PROJECT_GUID));
         }
         additionalProperties.put("packageGuid", packageGuid);
+        additionalProperties.put("userSecretsGuid", userSecretsGuid);
 
+        if (!additionalProperties.containsKey(NEWTONSOFT_VERSION)) {
+            additionalProperties.put(NEWTONSOFT_VERSION, newtonsoftVersion);
+        } else {
+            newtonsoftVersion = (String) additionalProperties.get(NEWTONSOFT_VERSION);
+        }
 
-        // CHeck for the modifiers etc.
+        // Check for the modifiers etc.
         // The order of the checks is important.
         setBuildTarget();
         setClassModifier();
@@ -256,7 +338,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         setUseSwashbuckle();
         setOperationIsAsync();
 
-        // CHeck for class modifier if not present set the default value.
+        // Check for class modifier if not present set the default value.
         additionalProperties.put(PROJECT_SDK, projectSdk);
 
         additionalProperties.put("dockerTag", packageName.toLowerCase(Locale.ROOT));
@@ -275,6 +357,10 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
         // determine the ASP.NET core version setting
         setAspnetCoreVersion(packageFolder);
+        setSwashbuckleVersion();
+        setIsFramework();
+        setUseNewtonsoft();
+        setUseEndpointRouting();
 
         supportingFiles.add(new SupportingFile("build.sh.mustache", "", "build.sh"));
         supportingFiles.add(new SupportingFile("build.bat.mustache", "", "build.bat"));
@@ -282,6 +368,10 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("Solution.mustache", "", packageName + ".sln"));
         supportingFiles.add(new SupportingFile("gitignore", packageFolder, ".gitignore"));
         supportingFiles.add(new SupportingFile("validateModel.mustache", packageFolder + File.separator + "Attributes", "ValidateModelStateAttribute.cs"));
+        supportingFiles.add(new SupportingFile("typeConverter.mustache", packageFolder + File.separator + "Converters", "CustomEnumConverter.cs"));
+        if (aspnetCoreVersion.getOptValue().startsWith("3.") || aspnetCoreVersion.getOptValue().startsWith("5.0")) {
+            supportingFiles.add(new SupportingFile("OpenApi" + File.separator + "TypeExtensions.mustache", packageFolder + File.separator + "OpenApi", "TypeExtensions.cs"));
+        }
         supportingFiles.add(new SupportingFile("Project.csproj.mustache", packageFolder, packageName + ".csproj"));
         if (!isLibrary) {
             supportingFiles.add(new SupportingFile("Dockerfile.mustache", packageFolder, "Dockerfile"));
@@ -294,14 +384,11 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             // wwwroot files.
             supportingFiles.add(new SupportingFile("wwwroot" + File.separator + "README.md", packageFolder + File.separator + "wwwroot", "README.md"));
             supportingFiles.add(new SupportingFile("wwwroot" + File.separator + "index.html", packageFolder + File.separator + "wwwroot", "index.html"));
-            supportingFiles.add(new SupportingFile("wwwroot" + File.separator + "web.config", packageFolder + File.separator + "wwwroot", "web.config"));
-
             supportingFiles.add(new SupportingFile("wwwroot" + File.separator + "openapi-original.mustache",
                     packageFolder + File.separator + "wwwroot", "openapi-original.json"));
         } else {
             supportingFiles.add(new SupportingFile("Project.nuspec.mustache", packageFolder, packageName + ".nuspec"));
         }
-
 
         if (useSwashbuckle) {
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "BasePathFilter.mustache",
@@ -309,6 +396,8 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             supportingFiles.add(new SupportingFile("Filters" + File.separator + "GeneratePathParamsValidationFilter.mustache",
                     packageFolder + File.separator + "Filters", "GeneratePathParamsValidationFilter.cs"));
         }
+
+        supportingFiles.add(new SupportingFile("Authentication" + File.separator + "ApiAuthentication.mustache", packageFolder + File.separator + "Authentication", "ApiAuthentication.cs"));
     }
 
     public void setPackageGuid(String packageGuid) {
@@ -359,14 +448,15 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         return escapeText(pattern);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public String getNullableType(Schema p, String type) {
-        boolean isNullableExpected = p.getNullable() == null || (p.getNullable() != null && p.getNullable());
-
-        if (isNullableExpected && languageSpecificPrimitives.contains(type + "?")) {
-            return type + "?";
-        } else if (languageSpecificPrimitives.contains(type)) {
-            return type;
+        if (languageSpecificPrimitives.contains(type)) {
+            if (isSupportNullable() && ModelUtils.isNullable(p) && nullableType.contains(type)) {
+                return type + "?";
+            } else {
+                return type;
+            }
         } else {
             return null;
         }
@@ -446,17 +536,34 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
     private void setAspnetCoreVersion(String packageFolder) {
         setCliOption(aspnetCoreVersion);
-        if ("2.0".equals(aspnetCoreVersion.getOptValue())) {
-            embeddedTemplateDir = templateDir = "aspnetcore/2.0";
-            supportingFiles.add(new SupportingFile("web.config", packageFolder, "web.config"));
-            LOGGER.info("ASP.NET core version: 2.0");
+
+        if (aspnetCoreVersion.getOptValue().startsWith("3.") || aspnetCoreVersion.getOptValue().startsWith("5.0")) {
+            compatibilityVersion = null;
+        } else if ("2.0".equals(aspnetCoreVersion.getOptValue())) {
             compatibilityVersion = null;
         } else {
             // default, do nothing
-            LOGGER.info("ASP.NET core version: " + aspnetCoreVersion.getOptValue());
             compatibilityVersion = "Version_" + aspnetCoreVersion.getOptValue().replace(".", "_");
         }
+        LOGGER.info("ASP.NET core version: " + aspnetCoreVersion.getOptValue());
+        if(!additionalProperties.containsKey(CodegenConstants.TEMPLATE_DIR)){
+            templateDir = embeddedTemplateDir = "aspnetcore" + File.separator + determineTemplateVersion(aspnetCoreVersion.getOptValue());
+        }
         additionalProperties.put(COMPATIBILITY_VERSION, compatibilityVersion);
+    }
+
+    private String determineTemplateVersion(String frameworkVersion) {
+        switch (frameworkVersion) {
+            case "5.0":
+            case "3.1":
+                return "3.0";
+
+            case "2.2":
+                return "2.1";
+
+            default:
+                return frameworkVersion;
+        }
     }
 
     private void setUseSwashbuckle() {
@@ -477,10 +584,73 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         if (isLibrary) {
             operationIsAsync = false;
             additionalProperties.put(OPERATION_IS_ASYNC, operationIsAsync);
-        } else  if (additionalProperties.containsKey(OPERATION_IS_ASYNC)) {
+        } else if (additionalProperties.containsKey(OPERATION_IS_ASYNC)) {
             operationIsAsync = convertPropertyToBooleanAndWriteBack(OPERATION_IS_ASYNC);
         } else {
             additionalProperties.put(OPERATION_IS_ASYNC, operationIsAsync);
+        }
+    }
+
+    private void setIsFramework() {
+        if (aspnetCoreVersion.getOptValue().startsWith("3.")) {// default, do nothing
+            LOGGER.warn("ASP.NET core version is " + aspnetCoreVersion.getOptValue() + " so changing to use frameworkReference instead of packageReference ");
+            useFrameworkReference = true;
+            additionalProperties.put(USE_FRAMEWORK_REFERENCE, useFrameworkReference);
+            additionalProperties.put(TARGET_FRAMEWORK, "netcoreapp" + aspnetCoreVersion);
+        } else if (aspnetCoreVersion.getOptValue().startsWith("5.")) {// default, do nothing
+            LOGGER.warn("ASP.NET core version is " + aspnetCoreVersion.getOptValue() + " so changing to use frameworkReference instead of packageReference ");
+            useFrameworkReference = true;
+            additionalProperties.put(USE_FRAMEWORK_REFERENCE, useFrameworkReference);
+            additionalProperties.put(TARGET_FRAMEWORK, "net5.0");
+        } else {
+            if (additionalProperties.containsKey(USE_FRAMEWORK_REFERENCE)) {
+                useFrameworkReference = convertPropertyToBooleanAndWriteBack(USE_FRAMEWORK_REFERENCE);
+            } else {
+                additionalProperties.put(USE_FRAMEWORK_REFERENCE, useFrameworkReference);
+            }
+            additionalProperties.put(TARGET_FRAMEWORK, "netcoreapp" + aspnetCoreVersion);
+        }
+    }
+
+    private void setUseNewtonsoft() {
+        if (aspnetCoreVersion.getOptValue().startsWith("2.")) {
+            LOGGER.warn("ASP.NET core version 2.X support has been deprecated. Please use ASP.NET core version 3.1 instead");
+            LOGGER.warn("ASP.NET core version is " + aspnetCoreVersion.getOptValue() + " so staying on default json library.");
+            useNewtonsoft = false;
+            additionalProperties.put(USE_NEWTONSOFT, useNewtonsoft);
+        } else {
+            if (additionalProperties.containsKey(USE_NEWTONSOFT)) {
+                useNewtonsoft = convertPropertyToBooleanAndWriteBack(USE_NEWTONSOFT);
+            } else {
+                additionalProperties.put(USE_NEWTONSOFT, useNewtonsoft);
+            }
+        }
+    }
+
+    private void setUseEndpointRouting() {
+        if (aspnetCoreVersion.getOptValue().startsWith("3.") || aspnetCoreVersion.getOptValue().startsWith("5.")) {
+            LOGGER.warn("ASP.NET core version is " + aspnetCoreVersion.getOptValue() + " so switching to old style endpoint routing.");
+            useDefaultRouting = false;
+            additionalProperties.put(USE_DEFAULT_ROUTING, useDefaultRouting);
+        } else {
+            if (additionalProperties.containsKey(USE_DEFAULT_ROUTING)) {
+                useDefaultRouting = convertPropertyToBooleanAndWriteBack(USE_DEFAULT_ROUTING);
+            } else {
+                additionalProperties.put(USE_DEFAULT_ROUTING, useDefaultRouting);
+            }
+        }
+    }
+
+    private void setSwashbuckleVersion() {
+        setCliOption(swashbuckleVersion);
+
+        if (aspnetCoreVersion.getOptValue().startsWith("3.") || aspnetCoreVersion.getOptValue().startsWith("5.")) {
+            LOGGER.warn("ASP.NET core version is " + aspnetCoreVersion.getOptValue() + " so changing default Swashbuckle version to 5.0.0.");
+            swashbuckleVersion.setOptValue("5.0.0");
+            additionalProperties.put(SWASHBUCKLE_VERSION, swashbuckleVersion.getOptValue());
+        } else {
+            // default, do nothing
+            LOGGER.info("Swashbuckle version: " + swashbuckleVersion.getOptValue());
         }
     }
 }

@@ -18,29 +18,25 @@
  */
 export interface Order {
     /**
-     * 
      * @type {number}
      * @memberof Order
      */
     id?: number;
     /**
-     * 
      * @type {number}
      * @memberof Order
      */
     petId?: number;
     /**
-     * 
      * @type {number}
      * @memberof Order
      */
     quantity?: number;
     /**
-     * 
-     * @type {Date}
+     * @type {string}
      * @memberof Order
      */
-    shipDate?: Date;
+    shipDate?: string;
     /**
      * Order Status
      * @type {string}
@@ -48,7 +44,6 @@ export interface Order {
      */
     status?: OrderStatusEnum;
     /**
-     * 
      * @type {boolean}
      * @memberof Order
      */

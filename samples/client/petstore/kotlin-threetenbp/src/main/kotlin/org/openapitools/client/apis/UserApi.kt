@@ -25,36 +25,66 @@ import org.openapitools.client.infrastructure.ResponseType
 import org.openapitools.client.infrastructure.Success
 import org.openapitools.client.infrastructure.toMultiValue
 
-class UserApi(basePath: kotlin.String = "http://petstore.swagger.io/v2") : ApiClient(basePath) {
+class UserApi(basePath: kotlin.String = defaultBasePath) : ApiClient(basePath) {
+    companion object {
+        @JvmStatic
+        val defaultBasePath: String by lazy {
+            System.getProperties().getProperty("org.openapitools.client.baseUrl", "http://petstore.swagger.io/v2")
+        }
+    }
 
     /**
     * Create user
     * This can only be done by the logged in user.
     * @param body Created user object 
     * @return void
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
     */
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
     fun createUser(body: User) : Unit {
-        val localVariableBody: kotlin.Any? = body
-        val localVariableQuery: MultiValueMap = mapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        val localVariableConfig = RequestConfig(
-            RequestMethod.POST,
-            "/user",
-            query = localVariableQuery,
-            headers = localVariableHeaders
-        )
-        val response = request<Any?>(
-            localVariableConfig,
-            localVariableBody
+        val localVariableConfig = createUserRequestConfig(body = body)
+
+        val localVarResponse = request<Any?>(
+            localVariableConfig
         )
 
-        return when (response.responseType) {
+        return when (localVarResponse.responseType) {
             ResponseType.Success -> Unit
-            ResponseType.Informational -> TODO()
-            ResponseType.Redirection -> TODO()
-            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
-            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
         }
+    }
+
+    /**
+    * To obtain the request config of the operation createUser
+    *
+    * @param body Created user object 
+    * @return RequestConfig
+    */
+    fun createUserRequestConfig(body: User) : RequestConfig {
+        val localVariableBody: kotlin.Any? = body
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        val localVariableConfig = RequestConfig(
+            method = RequestMethod.POST,
+            path = "/user",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            body = localVariableBody
+        )
+
+        return localVariableConfig
     }
 
     /**
@@ -62,29 +92,53 @@ class UserApi(basePath: kotlin.String = "http://petstore.swagger.io/v2") : ApiCl
     * 
     * @param body List of user object 
     * @return void
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
     */
-    fun createUsersWithArrayInput(body: kotlin.Array<User>) : Unit {
-        val localVariableBody: kotlin.Any? = body
-        val localVariableQuery: MultiValueMap = mapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        val localVariableConfig = RequestConfig(
-            RequestMethod.POST,
-            "/user/createWithArray",
-            query = localVariableQuery,
-            headers = localVariableHeaders
-        )
-        val response = request<Any?>(
-            localVariableConfig,
-            localVariableBody
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun createUsersWithArrayInput(body: kotlin.collections.List<User>) : Unit {
+        val localVariableConfig = createUsersWithArrayInputRequestConfig(body = body)
+
+        val localVarResponse = request<Any?>(
+            localVariableConfig
         )
 
-        return when (response.responseType) {
+        return when (localVarResponse.responseType) {
             ResponseType.Success -> Unit
-            ResponseType.Informational -> TODO()
-            ResponseType.Redirection -> TODO()
-            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
-            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
         }
+    }
+
+    /**
+    * To obtain the request config of the operation createUsersWithArrayInput
+    *
+    * @param body List of user object 
+    * @return RequestConfig
+    */
+    fun createUsersWithArrayInputRequestConfig(body: kotlin.collections.List<User>) : RequestConfig {
+        val localVariableBody: kotlin.Any? = body
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        val localVariableConfig = RequestConfig(
+            method = RequestMethod.POST,
+            path = "/user/createWithArray",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            body = localVariableBody
+        )
+
+        return localVariableConfig
     }
 
     /**
@@ -92,29 +146,53 @@ class UserApi(basePath: kotlin.String = "http://petstore.swagger.io/v2") : ApiCl
     * 
     * @param body List of user object 
     * @return void
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
     */
-    fun createUsersWithListInput(body: kotlin.Array<User>) : Unit {
-        val localVariableBody: kotlin.Any? = body
-        val localVariableQuery: MultiValueMap = mapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        val localVariableConfig = RequestConfig(
-            RequestMethod.POST,
-            "/user/createWithList",
-            query = localVariableQuery,
-            headers = localVariableHeaders
-        )
-        val response = request<Any?>(
-            localVariableConfig,
-            localVariableBody
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun createUsersWithListInput(body: kotlin.collections.List<User>) : Unit {
+        val localVariableConfig = createUsersWithListInputRequestConfig(body = body)
+
+        val localVarResponse = request<Any?>(
+            localVariableConfig
         )
 
-        return when (response.responseType) {
+        return when (localVarResponse.responseType) {
             ResponseType.Success -> Unit
-            ResponseType.Informational -> TODO()
-            ResponseType.Redirection -> TODO()
-            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
-            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
         }
+    }
+
+    /**
+    * To obtain the request config of the operation createUsersWithListInput
+    *
+    * @param body List of user object 
+    * @return RequestConfig
+    */
+    fun createUsersWithListInputRequestConfig(body: kotlin.collections.List<User>) : RequestConfig {
+        val localVariableBody: kotlin.Any? = body
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        val localVariableConfig = RequestConfig(
+            method = RequestMethod.POST,
+            path = "/user/createWithList",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            body = localVariableBody
+        )
+
+        return localVariableConfig
     }
 
     /**
@@ -122,29 +200,53 @@ class UserApi(basePath: kotlin.String = "http://petstore.swagger.io/v2") : ApiCl
     * This can only be done by the logged in user.
     * @param username The name that needs to be deleted 
     * @return void
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
     */
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
     fun deleteUser(username: kotlin.String) : Unit {
-        val localVariableBody: kotlin.Any? = null
-        val localVariableQuery: MultiValueMap = mapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        val localVariableConfig = RequestConfig(
-            RequestMethod.DELETE,
-            "/user/{username}".replace("{"+"username"+"}", "$username"),
-            query = localVariableQuery,
-            headers = localVariableHeaders
-        )
-        val response = request<Any?>(
-            localVariableConfig,
-            localVariableBody
+        val localVariableConfig = deleteUserRequestConfig(username = username)
+
+        val localVarResponse = request<Any?>(
+            localVariableConfig
         )
 
-        return when (response.responseType) {
+        return when (localVarResponse.responseType) {
             ResponseType.Success -> Unit
-            ResponseType.Informational -> TODO()
-            ResponseType.Redirection -> TODO()
-            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
-            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
         }
+    }
+
+    /**
+    * To obtain the request config of the operation deleteUser
+    *
+    * @param username The name that needs to be deleted 
+    * @return RequestConfig
+    */
+    fun deleteUserRequestConfig(username: kotlin.String) : RequestConfig {
+        val localVariableBody: kotlin.Any? = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        val localVariableConfig = RequestConfig(
+            method = RequestMethod.DELETE,
+            path = "/user/{username}".replace("{"+"username"+"}", "$username"),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            body = localVariableBody
+        )
+
+        return localVariableConfig
     }
 
     /**
@@ -152,30 +254,54 @@ class UserApi(basePath: kotlin.String = "http://petstore.swagger.io/v2") : ApiCl
     * 
     * @param username The name that needs to be fetched. Use user1 for testing. 
     * @return User
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
     */
     @Suppress("UNCHECKED_CAST")
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
     fun getUserByName(username: kotlin.String) : User {
-        val localVariableBody: kotlin.Any? = null
-        val localVariableQuery: MultiValueMap = mapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        val localVariableConfig = RequestConfig(
-            RequestMethod.GET,
-            "/user/{username}".replace("{"+"username"+"}", "$username"),
-            query = localVariableQuery,
-            headers = localVariableHeaders
-        )
-        val response = request<User>(
-            localVariableConfig,
-            localVariableBody
+        val localVariableConfig = getUserByNameRequestConfig(username = username)
+
+        val localVarResponse = request<User>(
+            localVariableConfig
         )
 
-        return when (response.responseType) {
-            ResponseType.Success -> (response as Success<*>).data as User
-            ResponseType.Informational -> TODO()
-            ResponseType.Redirection -> TODO()
-            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
-            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as User
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
         }
+    }
+
+    /**
+    * To obtain the request config of the operation getUserByName
+    *
+    * @param username The name that needs to be fetched. Use user1 for testing. 
+    * @return RequestConfig
+    */
+    fun getUserByNameRequestConfig(username: kotlin.String) : RequestConfig {
+        val localVariableBody: kotlin.Any? = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        val localVariableConfig = RequestConfig(
+            method = RequestMethod.GET,
+            path = "/user/{username}".replace("{"+"username"+"}", "$username"),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            body = localVariableBody
+        )
+
+        return localVariableConfig
     }
 
     /**
@@ -184,59 +310,111 @@ class UserApi(basePath: kotlin.String = "http://petstore.swagger.io/v2") : ApiCl
     * @param username The user name for login 
     * @param password The password for login in clear text 
     * @return kotlin.String
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
     */
     @Suppress("UNCHECKED_CAST")
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
     fun loginUser(username: kotlin.String, password: kotlin.String) : kotlin.String {
-        val localVariableBody: kotlin.Any? = null
-        val localVariableQuery: MultiValueMap = mapOf("username" to listOf("$username"), "password" to listOf("$password"))
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        val localVariableConfig = RequestConfig(
-            RequestMethod.GET,
-            "/user/login",
-            query = localVariableQuery,
-            headers = localVariableHeaders
-        )
-        val response = request<kotlin.String>(
-            localVariableConfig,
-            localVariableBody
+        val localVariableConfig = loginUserRequestConfig(username = username, password = password)
+
+        val localVarResponse = request<kotlin.String>(
+            localVariableConfig
         )
 
-        return when (response.responseType) {
-            ResponseType.Success -> (response as Success<*>).data as kotlin.String
-            ResponseType.Informational -> TODO()
-            ResponseType.Redirection -> TODO()
-            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
-            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.String
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
         }
+    }
+
+    /**
+    * To obtain the request config of the operation loginUser
+    *
+    * @param username The user name for login 
+    * @param password The password for login in clear text 
+    * @return RequestConfig
+    */
+    fun loginUserRequestConfig(username: kotlin.String, password: kotlin.String) : RequestConfig {
+        val localVariableBody: kotlin.Any? = null
+        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, List<kotlin.String>>()
+            .apply {
+                put("username", listOf(username.toString()))
+                put("password", listOf(password.toString()))
+            }
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        val localVariableConfig = RequestConfig(
+            method = RequestMethod.GET,
+            path = "/user/login",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            body = localVariableBody
+        )
+
+        return localVariableConfig
     }
 
     /**
     * Logs out current logged in user session
     * 
     * @return void
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
     */
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
     fun logoutUser() : Unit {
-        val localVariableBody: kotlin.Any? = null
-        val localVariableQuery: MultiValueMap = mapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        val localVariableConfig = RequestConfig(
-            RequestMethod.GET,
-            "/user/logout",
-            query = localVariableQuery,
-            headers = localVariableHeaders
-        )
-        val response = request<Any?>(
-            localVariableConfig,
-            localVariableBody
+        val localVariableConfig = logoutUserRequestConfig()
+
+        val localVarResponse = request<Any?>(
+            localVariableConfig
         )
 
-        return when (response.responseType) {
+        return when (localVarResponse.responseType) {
             ResponseType.Success -> Unit
-            ResponseType.Informational -> TODO()
-            ResponseType.Redirection -> TODO()
-            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
-            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
         }
+    }
+
+    /**
+    * To obtain the request config of the operation logoutUser
+    *
+    * @return RequestConfig
+    */
+    fun logoutUserRequestConfig() : RequestConfig {
+        val localVariableBody: kotlin.Any? = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        val localVariableConfig = RequestConfig(
+            method = RequestMethod.GET,
+            path = "/user/logout",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            body = localVariableBody
+        )
+
+        return localVariableConfig
     }
 
     /**
@@ -245,29 +423,54 @@ class UserApi(basePath: kotlin.String = "http://petstore.swagger.io/v2") : ApiCl
     * @param username name that need to be deleted 
     * @param body Updated user object 
     * @return void
+    * @throws UnsupportedOperationException If the API returns an informational or redirection response
+    * @throws ClientException If the API returns a client error response
+    * @throws ServerException If the API returns a server error response
     */
+    @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
     fun updateUser(username: kotlin.String, body: User) : Unit {
-        val localVariableBody: kotlin.Any? = body
-        val localVariableQuery: MultiValueMap = mapOf()
-        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        val localVariableConfig = RequestConfig(
-            RequestMethod.PUT,
-            "/user/{username}".replace("{"+"username"+"}", "$username"),
-            query = localVariableQuery,
-            headers = localVariableHeaders
-        )
-        val response = request<Any?>(
-            localVariableConfig,
-            localVariableBody
+        val localVariableConfig = updateUserRequestConfig(username = username, body = body)
+
+        val localVarResponse = request<Any?>(
+            localVariableConfig
         )
 
-        return when (response.responseType) {
+        return when (localVarResponse.responseType) {
             ResponseType.Success -> Unit
-            ResponseType.Informational -> TODO()
-            ResponseType.Redirection -> TODO()
-            ResponseType.ClientError -> throw ClientException((response as ClientError<*>).body as? String ?: "Client error")
-            ResponseType.ServerError -> throw ServerException((response as ServerError<*>).message ?: "Server error")
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
         }
+    }
+
+    /**
+    * To obtain the request config of the operation updateUser
+    *
+    * @param username name that need to be deleted 
+    * @param body Updated user object 
+    * @return RequestConfig
+    */
+    fun updateUserRequestConfig(username: kotlin.String, body: User) : RequestConfig {
+        val localVariableBody: kotlin.Any? = body
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        val localVariableConfig = RequestConfig(
+            method = RequestMethod.PUT,
+            path = "/user/{username}".replace("{"+"username"+"}", "$username"),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            body = localVariableBody
+        )
+
+        return localVariableConfig
     }
 
 }

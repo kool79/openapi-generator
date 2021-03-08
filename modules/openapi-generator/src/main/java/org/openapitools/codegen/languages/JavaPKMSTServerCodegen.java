@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.openapitools.codegen.*;
+import org.openapitools.codegen.meta.features.DocumentationFeature;
 import org.openapitools.codegen.utils.URLPathUtils;
 
 import java.io.File;
@@ -52,6 +53,8 @@ public class JavaPKMSTServerCodegen extends AbstractJavaCodegen {
 
     public JavaPKMSTServerCodegen() {
         super();
+
+        modifyFeatureSet(features -> features.includeDocumentationFeatures(DocumentationFeature.Readme));
 
         groupId = "com.prokarma";
         artifactId = "pkmst-microservice";
@@ -354,8 +357,7 @@ public class JavaPKMSTServerCodegen extends AbstractJavaCodegen {
     }
 
     /**
-     * This method removes header parameters from the list of parameters and
-     * also corrects last allParams hasMore state.
+     * This method removes header parameters from the list of parameters
      *
      * @param allParams list of all parameters
      */
@@ -371,7 +373,6 @@ public class JavaPKMSTServerCodegen extends AbstractJavaCodegen {
                 allParams.add(p);
             }
         }
-        allParams.get(allParams.size() - 1).hasMore = false;
     }
 
     /**
@@ -538,7 +539,7 @@ public class JavaPKMSTServerCodegen extends AbstractJavaCodegen {
             additionalProperties.put(TITLE, this.title);
         }
 
-        URL url = URLPathUtils.getServerURL(openAPI);
+        URL url = URLPathUtils.getServerURL(openAPI, serverVariableOverrides());
         this.additionalProperties.put("serverPort", URLPathUtils.getPort(url, 8080));
 
         if (openAPI.getPaths() != null) {
@@ -551,11 +552,7 @@ public class JavaPKMSTServerCodegen extends AbstractJavaCodegen {
                             for (String tag : operation.getTags()) {
                                 Map<String, String> value = new HashMap<String, String>();
                                 value.put("tag", tag);
-                                value.put("hasMore", "true");
                                 tags.add(value);
-                            }
-                            if (tags.size() > 0) {
-                                tags.get(tags.size() - 1).remove("hasMore");
                             }
                             if (operation.getTags().size() > 0) {
                                 String tag = operation.getTags().get(0);
